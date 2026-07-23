@@ -1,24 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "@/features/landing/Navbar";
+import { Hero } from "@/features/landing/Hero";
+import { Strip } from "@/features/landing/Strip";
+import { BrandGrid } from "@/features/landing/BrandGrid";
+import { MembersShowcase } from "@/features/landing/MembersShowcase";
+import { Services } from "@/features/landing/Services";
+import { CtaBanner } from "@/features/landing/CtaBanner";
+import { Footer } from "@/features/landing/Footer";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-dmg-bg text-dmg-text">
+      <Navbar />
+      <Hero />
+      <Strip />
+      <BrandGrid />
+      <MembersShowcase />
+      <Services />
+      <CtaBanner />
+      <Footer />
     </div>
   );
 }
