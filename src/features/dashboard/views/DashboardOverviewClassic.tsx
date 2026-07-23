@@ -4,6 +4,7 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
 import { BRL, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
+import { WorkspacePad } from "../components/WorkspacePad";
 
 /**
  * Painel "clássico": mais denso, tipografia mono forte, mini-cards.
@@ -100,6 +101,8 @@ export function DashboardOverviewClassic() {
           )}
         </Panel>
       </div>
+
+      <WorkspacePad />
 
       <Panel>
         <PanelTitle title=":: pipeline" sub="projetos em execução" />
