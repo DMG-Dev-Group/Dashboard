@@ -102,6 +102,8 @@ export function DashboardOverviewClassic() {
         </Panel>
       </div>
 
+      <WorkspacePad />
+
       <Panel>
         <PanelTitle title=":: pipeline" sub="projetos em execução" />
         <div className="overflow-x-auto">
