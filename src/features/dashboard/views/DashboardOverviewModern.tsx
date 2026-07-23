@@ -6,6 +6,7 @@ import { Kpi } from "../components/Kpi";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
 import { RevenueChart } from "../components/RevenueChart";
+import { WorkspacePad } from "../components/WorkspacePad";
 import { BRL, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
 
 export function DashboardOverviewModern() {
