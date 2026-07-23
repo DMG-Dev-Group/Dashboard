@@ -371,7 +371,7 @@ function HeroTile({
   value,
   meta,
 }: {
-  to: string;
+  to: DashboardPath;
   icon: ReactNode;
   label: string;
   value: string;
@@ -411,7 +411,7 @@ function MetricCard({
   delta: ReactNode;
 }) {
   return (
-    <div className="relative min-h-[150px] overflow-hidden rounded-2xl border border-dmg-border bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),var(--dmg-bg)] p-4 shadow-[0_22px_70px_rgba(0,0,0,.48),inset_0_1px_0_rgba(255,255,255,.08)] before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(to_right,transparent,var(--dmg-red-solid),transparent)] after:pointer-events-none after:absolute after:inset-0 after:animate-[scan_6s_ease-in-out_infinite] after:bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,.07)_48%,transparent_58%)]">
+    <div className="relative min-h-[150px] overflow-hidden rounded-2xl border border-dmg-border bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),var(--dmg-bg)] p-4 shadow-[0_22px_70px_rgba(0,0,0,.48),inset_0_1px_0_rgba(255,255,255,.08)] before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(to_right,transparent,var(--dmg-red-solid),transparent)] after:pointer-events-none after:absolute after:inset-0 after:animate-[dmg-scan_6s_ease-in-out_infinite] after:bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,.07)_48%,transparent_58%)]">
       <div className="relative flex items-start justify-between gap-3">
         <span className="grid h-11 w-11 place-items-center rounded-xl border border-dmg-red-dark bg-dmg-red-solid/15 text-dmg-red">
           {icon}
