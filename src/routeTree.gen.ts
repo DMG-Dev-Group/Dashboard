@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
-import { Route as AuthProjetosRouteImport } from './routes/_auth.projetos'
 import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
 import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
 import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
@@ -22,6 +21,7 @@ import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
 import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
+import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
 import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -36,11 +36,6 @@ const IndexRoute = IndexRouteImport.update({
 const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
   id: '/seguranca',
   path: '/seguranca',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthProjetosRoute = AuthProjetosRouteImport.update({
-  id: '/projetos',
-  path: '/projetos',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
@@ -88,10 +83,15 @@ const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
+  id: '/projetos/',
+  path: '/projetos/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthProjetosIdRoute = AuthProjetosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthProjetosRoute,
+  id: '/projetos/$id',
+  path: '/projetos/$id',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -105,9 +105,9 @@ export interface FileRoutesByFullPath {
   '/equipe': typeof AuthEquipeRoute
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
-  '/projetos': typeof AuthProjetosRouteWithChildren
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
+  '/projetos/': typeof AuthProjetosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -120,9 +120,9 @@ export interface FileRoutesByTo {
   '/equipe': typeof AuthEquipeRoute
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
-  '/projetos': typeof AuthProjetosRouteWithChildren
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
+  '/projetos': typeof AuthProjetosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -137,9 +137,9 @@ export interface FileRoutesById {
   '/_auth/equipe': typeof AuthEquipeRoute
   '/_auth/financeiro': typeof AuthFinanceiroRoute
   '/_auth/infraestrutura': typeof AuthInfraestruturaRoute
-  '/_auth/projetos': typeof AuthProjetosRouteWithChildren
   '/_auth/seguranca': typeof AuthSegurancaRoute
   '/_auth/projetos/$id': typeof AuthProjetosIdRoute
+  '/_auth/projetos/': typeof AuthProjetosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -154,9 +154,9 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/financeiro'
     | '/infraestrutura'
-    | '/projetos'
     | '/seguranca'
     | '/projetos/$id'
+    | '/projetos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -169,9 +169,9 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/financeiro'
     | '/infraestrutura'
-    | '/projetos'
     | '/seguranca'
     | '/projetos/$id'
+    | '/projetos'
   id:
     | '__root__'
     | '/'
@@ -185,9 +185,9 @@ export interface FileRouteTypes {
     | '/_auth/equipe'
     | '/_auth/financeiro'
     | '/_auth/infraestrutura'
-    | '/_auth/projetos'
     | '/_auth/seguranca'
     | '/_auth/projetos/$id'
+    | '/_auth/projetos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -216,13 +216,6 @@ declare module '@tanstack/react-router' {
       path: '/seguranca'
       fullPath: '/seguranca'
       preLoaderRoute: typeof AuthSegurancaRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/projetos': {
-      id: '/_auth/projetos'
-      path: '/projetos'
-      fullPath: '/projetos'
-      preLoaderRoute: typeof AuthProjetosRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/infraestrutura': {
@@ -288,27 +281,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAnalyticsRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/projetos/': {
+      id: '/_auth/projetos/'
+      path: '/projetos'
+      fullPath: '/projetos/'
+      preLoaderRoute: typeof AuthProjetosIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/projetos/$id': {
       id: '/_auth/projetos/$id'
-      path: '/$id'
+      path: '/projetos/$id'
       fullPath: '/projetos/$id'
       preLoaderRoute: typeof AuthProjetosIdRouteImport
-      parentRoute: typeof AuthProjetosRoute
+      parentRoute: typeof AuthRoute
     }
   }
 }
-
-interface AuthProjetosRouteChildren {
-  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
-}
-
-const AuthProjetosRouteChildren: AuthProjetosRouteChildren = {
-  AuthProjetosIdRoute: AuthProjetosIdRoute,
-}
-
-const AuthProjetosRouteWithChildren = AuthProjetosRoute._addFileChildren(
-  AuthProjetosRouteChildren,
-)
 
 interface AuthRouteChildren {
   AuthAnalyticsRoute: typeof AuthAnalyticsRoute
@@ -320,8 +308,9 @@ interface AuthRouteChildren {
   AuthEquipeRoute: typeof AuthEquipeRoute
   AuthFinanceiroRoute: typeof AuthFinanceiroRoute
   AuthInfraestruturaRoute: typeof AuthInfraestruturaRoute
-  AuthProjetosRoute: typeof AuthProjetosRouteWithChildren
   AuthSegurancaRoute: typeof AuthSegurancaRoute
+  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
+  AuthProjetosIndexRoute: typeof AuthProjetosIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -334,8 +323,9 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthEquipeRoute: AuthEquipeRoute,
   AuthFinanceiroRoute: AuthFinanceiroRoute,
   AuthInfraestruturaRoute: AuthInfraestruturaRoute,
-  AuthProjetosRoute: AuthProjetosRouteWithChildren,
   AuthSegurancaRoute: AuthSegurancaRoute,
+  AuthProjetosIdRoute: AuthProjetosIdRoute,
+  AuthProjetosIndexRoute: AuthProjetosIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -347,13 +337,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
