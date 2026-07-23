@@ -1,16 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import { Activity, Briefcase, CalendarDays, DollarSign, Server, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store/StoreProvider";
-import { STATUS } from "@/lib/store/constants";
-import type { Evento, ProjectStatus } from "@/lib/store/types";
+import type { Evento } from "@/lib/store/types";
 import { RevenueChart } from "../components/RevenueChart";
 import { StatusBadge } from "../components/StatusBadge";
 import { EventoModal } from "../modals/EventoModal";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { useModal } from "../modals/ModalProvider";
 import { BRL, fmtDataBR, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
+
+type DashboardPath = "/financeiro" | "/atividades" | "/calendario" | "/equipe" | "/projetos";
 
 /**
  * Painel "clássico": mais denso, tipografia mono forte, mini-cards.
@@ -322,8 +323,8 @@ function ClassicPanel({
 }: {
   title: string;
   sub?: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
+  action?: ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div className="rounded-2xl border border-dmg-border bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),var(--dmg-bg)] p-5 shadow-[0_22px_70px_rgba(0,0,0,.48),inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur-lg">
@@ -339,7 +340,7 @@ function ClassicPanel({
   );
 }
 
-function ClassicMore({ to, children }: { to: string; children: React.ReactNode }) {
+function ClassicMore({ to, children }: { to: DashboardPath; children: ReactNode }) {
   return (
     <Link to={to} className="whitespace-nowrap text-xs font-medium text-dmg-red hover:underline">
       {children}
@@ -347,7 +348,7 @@ function ClassicMore({ to, children }: { to: string; children: React.ReactNode }
   );
 }
 
-function Pill({ children, muted, success }: { children: React.ReactNode; muted?: boolean; success?: boolean }) {
+function Pill({ children, muted, success }: { children: ReactNode; muted?: boolean; success?: boolean }) {
   return (
     <span
       className={
@@ -371,7 +372,7 @@ function HeroTile({
   meta,
 }: {
   to: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
   value: string;
   meta: string;
@@ -402,12 +403,12 @@ function MetricCard({
   value,
   delta,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   badge: string;
   badgeTone?: "success" | "warn" | "muted";
   label: string;
   value: string;
-  delta: React.ReactNode;
+  delta: ReactNode;
 }) {
   return (
     <div className="relative min-h-[150px] overflow-hidden rounded-2xl border border-dmg-border bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),var(--dmg-bg)] p-4 shadow-[0_22px_70px_rgba(0,0,0,.48),inset_0_1px_0_rgba(255,255,255,.08)] before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-[linear-gradient(to_right,transparent,var(--dmg-red-solid),transparent)] after:pointer-events-none after:absolute after:inset-0 after:animate-[scan_6s_ease-in-out_infinite] after:bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,.07)_48%,transparent_58%)]">
@@ -508,7 +509,7 @@ function TeamRow({ initial, name, stack, warn }: { initial: string; name: string
   );
 }
 
-function ClassicTh({ children }: { children: React.ReactNode }) {
+function ClassicTh({ children }: { children: ReactNode }) {
   return <th className="px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-dmg-text-3">{children}</th>;
 }
 
@@ -522,12 +523,3 @@ function formatDelta(delta: number) {
   return `${delta > 0 ? "+" : ""}${delta.toFixed(0)}%`;
 }
 
-function statusClass(status: ProjectStatus) {
-  return STATUS[status]?.cls ?? STATUS.plan.cls;
-}
-
-void statusClass;
-
-    </div>
-  );
-}
