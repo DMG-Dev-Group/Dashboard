@@ -9,38 +9,201 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
+import { Route as AuthProjetosRouteImport } from './routes/_auth.projetos'
+import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
+import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
+import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
+import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
+import { Route as AuthConfigRouteImport } from './routes/_auth.config'
+import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
+import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
+import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
+import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
+import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
+  id: '/seguranca',
+  path: '/seguranca',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthProjetosRoute = AuthProjetosRouteImport.update({
+  id: '/projetos',
+  path: '/projetos',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
+  id: '/infraestrutura',
+  path: '/infraestrutura',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthFinanceiroRoute = AuthFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthEquipeRoute = AuthEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthDashboardRoute = AuthDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthConfigRoute = AuthConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthClientesRoute = AuthClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCalendarioRoute = AuthCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAtividadesRoute = AuthAtividadesRouteImport.update({
+  id: '/atividades',
+  path: '/atividades',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthProjetosIdRoute = AuthProjetosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthProjetosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/analytics': typeof AuthAnalyticsRoute
+  '/atividades': typeof AuthAtividadesRoute
+  '/calendario': typeof AuthCalendarioRoute
+  '/clientes': typeof AuthClientesRoute
+  '/config': typeof AuthConfigRoute
+  '/dashboard': typeof AuthDashboardRoute
+  '/equipe': typeof AuthEquipeRoute
+  '/financeiro': typeof AuthFinanceiroRoute
+  '/infraestrutura': typeof AuthInfraestruturaRoute
+  '/projetos': typeof AuthProjetosRouteWithChildren
+  '/seguranca': typeof AuthSegurancaRoute
+  '/projetos/$id': typeof AuthProjetosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/analytics': typeof AuthAnalyticsRoute
+  '/atividades': typeof AuthAtividadesRoute
+  '/calendario': typeof AuthCalendarioRoute
+  '/clientes': typeof AuthClientesRoute
+  '/config': typeof AuthConfigRoute
+  '/dashboard': typeof AuthDashboardRoute
+  '/equipe': typeof AuthEquipeRoute
+  '/financeiro': typeof AuthFinanceiroRoute
+  '/infraestrutura': typeof AuthInfraestruturaRoute
+  '/projetos': typeof AuthProjetosRouteWithChildren
+  '/seguranca': typeof AuthSegurancaRoute
+  '/projetos/$id': typeof AuthProjetosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_auth': typeof AuthRouteWithChildren
+  '/_auth/analytics': typeof AuthAnalyticsRoute
+  '/_auth/atividades': typeof AuthAtividadesRoute
+  '/_auth/calendario': typeof AuthCalendarioRoute
+  '/_auth/clientes': typeof AuthClientesRoute
+  '/_auth/config': typeof AuthConfigRoute
+  '/_auth/dashboard': typeof AuthDashboardRoute
+  '/_auth/equipe': typeof AuthEquipeRoute
+  '/_auth/financeiro': typeof AuthFinanceiroRoute
+  '/_auth/infraestrutura': typeof AuthInfraestruturaRoute
+  '/_auth/projetos': typeof AuthProjetosRouteWithChildren
+  '/_auth/seguranca': typeof AuthSegurancaRoute
+  '/_auth/projetos/$id': typeof AuthProjetosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/atividades'
+    | '/calendario'
+    | '/clientes'
+    | '/config'
+    | '/dashboard'
+    | '/equipe'
+    | '/financeiro'
+    | '/infraestrutura'
+    | '/projetos'
+    | '/seguranca'
+    | '/projetos/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/analytics'
+    | '/atividades'
+    | '/calendario'
+    | '/clientes'
+    | '/config'
+    | '/dashboard'
+    | '/equipe'
+    | '/financeiro'
+    | '/infraestrutura'
+    | '/projetos'
+    | '/seguranca'
+    | '/projetos/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/_auth/analytics'
+    | '/_auth/atividades'
+    | '/_auth/calendario'
+    | '/_auth/clientes'
+    | '/_auth/config'
+    | '/_auth/dashboard'
+    | '/_auth/equipe'
+    | '/_auth/financeiro'
+    | '/_auth/infraestrutura'
+    | '/_auth/projetos'
+    | '/_auth/seguranca'
+    | '/_auth/projetos/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +211,138 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/seguranca': {
+      id: '/_auth/seguranca'
+      path: '/seguranca'
+      fullPath: '/seguranca'
+      preLoaderRoute: typeof AuthSegurancaRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/projetos': {
+      id: '/_auth/projetos'
+      path: '/projetos'
+      fullPath: '/projetos'
+      preLoaderRoute: typeof AuthProjetosRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/infraestrutura': {
+      id: '/_auth/infraestrutura'
+      path: '/infraestrutura'
+      fullPath: '/infraestrutura'
+      preLoaderRoute: typeof AuthInfraestruturaRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/financeiro': {
+      id: '/_auth/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof AuthFinanceiroRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/equipe': {
+      id: '/_auth/equipe'
+      path: '/equipe'
+      fullPath: '/equipe'
+      preLoaderRoute: typeof AuthEquipeRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/dashboard': {
+      id: '/_auth/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/config': {
+      id: '/_auth/config'
+      path: '/config'
+      fullPath: '/config'
+      preLoaderRoute: typeof AuthConfigRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/clientes': {
+      id: '/_auth/clientes'
+      path: '/clientes'
+      fullPath: '/clientes'
+      preLoaderRoute: typeof AuthClientesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/calendario': {
+      id: '/_auth/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthCalendarioRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/atividades': {
+      id: '/_auth/atividades'
+      path: '/atividades'
+      fullPath: '/atividades'
+      preLoaderRoute: typeof AuthAtividadesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/analytics': {
+      id: '/_auth/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthAnalyticsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/projetos/$id': {
+      id: '/_auth/projetos/$id'
+      path: '/$id'
+      fullPath: '/projetos/$id'
+      preLoaderRoute: typeof AuthProjetosIdRouteImport
+      parentRoute: typeof AuthProjetosRoute
+    }
   }
 }
 
+interface AuthProjetosRouteChildren {
+  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
+}
+
+const AuthProjetosRouteChildren: AuthProjetosRouteChildren = {
+  AuthProjetosIdRoute: AuthProjetosIdRoute,
+}
+
+const AuthProjetosRouteWithChildren = AuthProjetosRoute._addFileChildren(
+  AuthProjetosRouteChildren,
+)
+
+interface AuthRouteChildren {
+  AuthAnalyticsRoute: typeof AuthAnalyticsRoute
+  AuthAtividadesRoute: typeof AuthAtividadesRoute
+  AuthCalendarioRoute: typeof AuthCalendarioRoute
+  AuthClientesRoute: typeof AuthClientesRoute
+  AuthConfigRoute: typeof AuthConfigRoute
+  AuthDashboardRoute: typeof AuthDashboardRoute
+  AuthEquipeRoute: typeof AuthEquipeRoute
+  AuthFinanceiroRoute: typeof AuthFinanceiroRoute
+  AuthInfraestruturaRoute: typeof AuthInfraestruturaRoute
+  AuthProjetosRoute: typeof AuthProjetosRouteWithChildren
+  AuthSegurancaRoute: typeof AuthSegurancaRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthAnalyticsRoute: AuthAnalyticsRoute,
+  AuthAtividadesRoute: AuthAtividadesRoute,
+  AuthCalendarioRoute: AuthCalendarioRoute,
+  AuthClientesRoute: AuthClientesRoute,
+  AuthConfigRoute: AuthConfigRoute,
+  AuthDashboardRoute: AuthDashboardRoute,
+  AuthEquipeRoute: AuthEquipeRoute,
+  AuthFinanceiroRoute: AuthFinanceiroRoute,
+  AuthInfraestruturaRoute: AuthInfraestruturaRoute,
+  AuthProjetosRoute: AuthProjetosRouteWithChildren,
+  AuthSegurancaRoute: AuthSegurancaRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
