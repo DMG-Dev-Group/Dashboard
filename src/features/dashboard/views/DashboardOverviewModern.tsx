@@ -38,7 +38,7 @@ export function DashboardOverviewModern() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Kpi label="Projetos ativos" value={stats.ativos} meta={`${clientes.length} clientes`} />
+        <Kpi label="Projetos ativos" value={String(stats.ativos)} meta={`${clientes.length} clientes`} />
         <Kpi label="Entradas // mês" value={fmtK(stats.entradas)} tone="ok" />
         <Kpi label="Saídas // mês" value={fmtK(stats.saidas)} tone="bad" />
         <Kpi label="Saldo // mês" value={BRL(stats.entradas - stats.saidas)} />
