@@ -76,6 +76,8 @@ export function DashboardOverviewModern() {
         </Panel>
       </div>
 
+      <WorkspacePad />
+
       <Panel>
         <PanelTitle title="Projetos em andamento" sub="ordenados por progresso" />
         {projetos.length === 0 ? (
