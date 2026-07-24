@@ -21,6 +21,7 @@ import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
 import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
+import { Route as AuthNotasRouteImport } from './routes/_auth.notas'
 import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
 import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 
@@ -83,6 +84,11 @@ const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthNotasRoute = AuthNotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
   id: '/projetos/',
   path: '/projetos/',
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/equipe': typeof AuthEquipeRoute
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
+  '/notas': typeof AuthNotasRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
   '/projetos/': typeof AuthProjetosIndexRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/equipe': typeof AuthEquipeRoute
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
+  '/notas': typeof AuthNotasRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
   '/projetos': typeof AuthProjetosIndexRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/_auth/equipe': typeof AuthEquipeRoute
   '/_auth/financeiro': typeof AuthFinanceiroRoute
   '/_auth/infraestrutura': typeof AuthInfraestruturaRoute
+  '/_auth/notas': typeof AuthNotasRoute
   '/_auth/seguranca': typeof AuthSegurancaRoute
   '/_auth/projetos/$id': typeof AuthProjetosIdRoute
   '/_auth/projetos/': typeof AuthProjetosIndexRoute
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/financeiro'
     | '/infraestrutura'
+    | '/notas'
     | '/seguranca'
     | '/projetos/$id'
     | '/projetos/'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/financeiro'
     | '/infraestrutura'
+    | '/notas'
     | '/seguranca'
     | '/projetos/$id'
     | '/projetos'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/_auth/equipe'
     | '/_auth/financeiro'
     | '/_auth/infraestrutura'
+    | '/_auth/notas'
     | '/_auth/seguranca'
     | '/_auth/projetos/$id'
     | '/_auth/projetos/'
@@ -281,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAnalyticsRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/notas': {
+      id: '/_auth/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof AuthNotasRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/projetos/': {
       id: '/_auth/projetos/'
       path: '/projetos'
@@ -308,6 +327,7 @@ interface AuthRouteChildren {
   AuthEquipeRoute: typeof AuthEquipeRoute
   AuthFinanceiroRoute: typeof AuthFinanceiroRoute
   AuthInfraestruturaRoute: typeof AuthInfraestruturaRoute
+  AuthNotasRoute: typeof AuthNotasRoute
   AuthSegurancaRoute: typeof AuthSegurancaRoute
   AuthProjetosIdRoute: typeof AuthProjetosIdRoute
   AuthProjetosIndexRoute: typeof AuthProjetosIndexRoute
@@ -323,6 +343,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthEquipeRoute: AuthEquipeRoute,
   AuthFinanceiroRoute: AuthFinanceiroRoute,
   AuthInfraestruturaRoute: AuthInfraestruturaRoute,
+  AuthNotasRoute: AuthNotasRoute,
   AuthSegurancaRoute: AuthSegurancaRoute,
   AuthProjetosIdRoute: AuthProjetosIdRoute,
   AuthProjetosIndexRoute: AuthProjetosIndexRoute,

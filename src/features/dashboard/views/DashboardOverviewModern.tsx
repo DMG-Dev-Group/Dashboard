@@ -6,7 +6,7 @@ import { Kpi } from "../components/Kpi";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
 import { RevenueChart } from "../components/RevenueChart";
-import { WorkspacePad } from "../components/WorkspacePad";
+import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
 
 export function DashboardOverviewModern() {
@@ -76,8 +76,6 @@ export function DashboardOverviewModern() {
         </Panel>
       </div>
 
-      <WorkspacePad />
-
       <Panel>
         <PanelTitle title="Projetos em andamento" sub="ordenados por progresso" />
         {projetos.length === 0 ? (
@@ -87,7 +85,7 @@ export function DashboardOverviewModern() {
             {projetos
               .filter((p) => p.status !== "done")
               .slice()
-              .sort((a, b) => b.progresso - a.progresso)
+              .sort((a, b) => progressoDoProjeto(b) - progressoDoProjeto(a))
               .slice(0, 6)
               .map((p) => (
                 <Link
@@ -100,10 +98,10 @@ export function DashboardOverviewModern() {
                     <b className="truncate">{p.nome}</b>
                     <StatusBadge status={p.status} />
                   </div>
-                  <ProgressBar value={p.progresso} />
+                  <ProgressBar value={progressoDoProjeto(p)} />
                   <div className="mt-2 flex items-center justify-between font-mono text-[11px] text-dmg-text-3">
                     <span>{p.tipo || "—"}</span>
-                    <span>{p.progresso}%</span>
+                    <span>{progressoDoProjeto(p)}%</span>
                   </div>
                 </Link>
               ))}

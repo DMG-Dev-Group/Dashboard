@@ -3,6 +3,7 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
+import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
@@ -73,7 +74,7 @@ export function ProjetosView() {
                     <StatusBadge status={p.status} />
                   </td>
                   <td className="py-3 pr-4 min-w-[160px]">
-                    <ProgressBar value={p.progresso} />
+                    <ProgressBar value={progressoDoProjeto(p)} />
                   </td>
                   <td className="py-3 pr-4 tabular-nums text-dmg-text-2">
                     {p.valor ? BRL(Number(p.valor)) : "—"}

@@ -9,6 +9,7 @@ import { StatusBadge } from "../components/StatusBadge";
 import { EventoModal } from "../modals/EventoModal";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { useModal } from "../modals/ModalProvider";
+import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL, fmtDataBR, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
 
 type DashboardPath = "/financeiro" | "/atividades" | "/calendario" | "/equipe" | "/projetos";
@@ -300,9 +301,9 @@ export function DashboardOverviewClassic() {
                     </td>
                     <td className="border-b border-dmg-border px-5 py-3.5 text-sm text-dmg-text-2">
                       <span className="inline-block h-2 w-28 overflow-hidden rounded-full bg-dmg-surface-3 align-middle">
-                        <i className="block h-full rounded-full bg-dmg-red-solid" style={{ width: `${p.progresso}%` }} />
+                        <i className="block h-full rounded-full bg-dmg-red-solid" style={{ width: `${progressoDoProjeto(p)}%` }} />
                       </span>
-                      <span className="ml-2 text-[13px] text-dmg-text-2">{p.progresso}%</span>
+                      <span className="ml-2 text-[13px] text-dmg-text-2">{progressoDoProjeto(p)}%</span>
                     </td>
                   </tr>
                 ))
