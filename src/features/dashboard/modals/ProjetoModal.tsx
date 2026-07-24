@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useStore } from "@/lib/store/StoreProvider";
 import type { Projeto, ProjectStatus } from "@/lib/store/types";
+import { calcProgresso } from "@/lib/store/relations";
 import { RESPONSAVEIS } from "@/lib/store/constants";
 
 interface Props {
@@ -16,7 +17,6 @@ export function ProjetoModal({ projeto, onClose }: Props) {
     resp: projeto?.resp ?? RESPONSAVEIS[0],
     clienteId: projeto?.clienteId ?? "",
     status: projeto?.status ?? "plan",
-    progresso: projeto?.progresso ?? 0,
     valor: projeto?.valor ?? 0,
     stack: projeto?.stack ?? "",
     repo: projeto?.repo ?? "",
@@ -26,7 +26,12 @@ export function ProjetoModal({ projeto, onClose }: Props) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const payload = { ...f, progresso: Number(f.progresso) || 0, valor: Number(f.valor) || 0 };
+    // Progresso é sempre derivado das To-Dos do projeto (não é editável à mão).
+    const payload = {
+      ...f,
+      progresso: calcProgresso(projeto?.todos),
+      valor: Number(f.valor) || 0,
+    };
     if (projeto) {
       await update("projetos", projeto.id, payload);
       await log(`<b>Projeto</b> — ${payload.nome} atualizado`, "projeto");
@@ -64,26 +69,20 @@ export function ProjetoModal({ projeto, onClose }: Props) {
           ))}
         </Select>
       </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Status">
-          <Select
-            value={f.status ?? "plan"}
-            onChange={(v) => setF({ ...f, status: v as ProjectStatus })}
-          >
-            <option value="plan">planejamento</option>
-            <option value="dev">desenvolvimento</option>
-            <option value="producao">produção</option>
-            <option value="done">concluído</option>
-          </Select>
-        </Field>
-        <Field label="Progresso (%)">
-          <Input
-            type="number"
-            value={String(f.progresso ?? 0)}
-            onChange={(v) => setF({ ...f, progresso: Number(v) })}
-          />
-        </Field>
-      </div>
+      <Field label="Status">
+        <Select
+          value={f.status ?? "plan"}
+          onChange={(v) => setF({ ...f, status: v as ProjectStatus })}
+        >
+          <option value="plan">planejamento</option>
+          <option value="dev">desenvolvimento</option>
+          <option value="producao">produção</option>
+          <option value="done">concluído</option>
+        </Select>
+      </Field>
+      <p className="-mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3">
+        // progresso é calculado automaticamente pelas to-dos do projeto
+      </p>
       <Field label="Valor contratado (R$)">
         <Input
           type="number"

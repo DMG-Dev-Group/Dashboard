@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
+import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
 
 /**
@@ -132,7 +133,7 @@ export function DashboardOverviewClassic() {
                     <td className="py-2 pr-3">
                       <StatusBadge status={p.status} />
                     </td>
-                    <td className="py-2 tabular-nums text-dmg-text">{p.progresso}%</td>
+                    <td className="py-2 tabular-nums text-dmg-text">{progressoDoProjeto(p)}%</td>
                   </tr>
                 ))}
             </tbody>

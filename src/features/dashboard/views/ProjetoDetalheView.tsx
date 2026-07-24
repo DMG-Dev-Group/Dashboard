@@ -5,7 +5,7 @@ import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
 import { BRL, fmtDataBR } from "@/lib/format";
-import { clienteDoProjeto, lancamentosDoProjeto } from "@/lib/store/relations";
+import { calcProgresso, clienteDoProjeto, lancamentosDoProjeto } from "@/lib/store/relations";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react";
@@ -111,6 +111,7 @@ export function ProjetoDetalheView() {
   const gastos = lanc.filter((l) => l.tipo === "saida").reduce((s, l) => s + Number(l.valor), 0);
   const todos = Array.isArray(p.todos) ? p.todos : [];
   const feitas = todos.filter((t) => t.feito).length;
+  const prog = calcProgresso(todos);
 
   function saveNotas(texto: string, immediate = false) {
     setNotasStatus("digitando…");
@@ -177,11 +178,16 @@ export function ProjetoDetalheView() {
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-dmg-text-3">
             Progresso
           </span>
-          <b className="tabular-nums">{p.progresso}%</b>
+          <b className="tabular-nums">{prog}%</b>
         </div>
         <div className="mt-2">
-          <ProgressBar value={p.progresso} />
+          <ProgressBar value={prog} />
         </div>
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3">
+          {todos.length
+            ? `calculado pelas to-dos · ${feitas}/${todos.length} concluídas`
+            : "adicione to-dos abaixo para calcular o progresso"}
+        </p>
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -282,7 +288,7 @@ export function ProjetoDetalheView() {
               if (!novaTarefa.trim()) return;
               const t = [...todos, { texto: novaTarefa.trim(), feito: false, criadoEm: Date.now() }];
               setNovaTarefa("");
-              await update("projetos", p.id, { todos: t });
+              await update("projetos", p.id, { todos: t, progresso: calcProgresso(t) });
             }}
             className="mb-4 flex gap-2"
           >
@@ -317,7 +323,7 @@ export function ProjetoDetalheView() {
                       const t2 = todos.map((x, idx) =>
                         idx === i ? { ...x, feito: e.target.checked } : x,
                       );
-                      await update("projetos", p.id, { todos: t2 });
+                      await update("projetos", p.id, { todos: t2, progresso: calcProgresso(t2) });
                     }}
                     className="accent-dmg-red"
                   />
@@ -326,7 +332,8 @@ export function ProjetoDetalheView() {
                   </span>
                   <button
                     onClick={async () => {
-                      await update("projetos", p.id, { todos: todos.filter((_, idx) => idx !== i) });
+                      const t3 = todos.filter((_, idx) => idx !== i);
+                      await update("projetos", p.id, { todos: t3, progresso: calcProgresso(t3) });
                     }}
                     className="rounded p-1 text-dmg-text-3 hover:text-dmg-red"
                   >
