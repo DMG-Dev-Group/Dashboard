@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
-import { Route as AuthProjetosRouteImport } from './routes/_auth.projetos'
 import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
 import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
 import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
@@ -23,8 +22,8 @@ import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
 import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
 import { Route as AuthNotasRouteImport } from './routes/_auth.notas'
-import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
+import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -38,11 +37,6 @@ const IndexRoute = IndexRouteImport.update({
 const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
   id: '/seguranca',
   path: '/seguranca',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthProjetosRoute = AuthProjetosRouteImport.update({
-  id: '/projetos',
-  path: '/projetos',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
@@ -95,15 +89,15 @@ const AuthNotasRoute = AuthNotasRouteImport.update({
   path: '/notas',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthProjetosIdRoute = AuthProjetosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthProjetosRoute,
-} as any)
 const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AuthProjetosRoute,
+  id: '/projetos/',
+  path: '/projetos/',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthProjetosIdRoute = AuthProjetosIdRouteImport.update({
+  id: '/projetos/$id',
+  path: '/projetos/$id',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -118,9 +112,9 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
   '/notas': typeof AuthNotasRoute
-  '/projetos': typeof AuthProjetosIndexRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
+  '/projetos/': typeof AuthProjetosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -134,9 +128,9 @@ export interface FileRoutesByTo {
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
   '/notas': typeof AuthNotasRoute
-  '/projetos': typeof AuthProjetosIndexRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
+  '/projetos': typeof AuthProjetosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,7 +146,6 @@ export interface FileRoutesById {
   '/_auth/financeiro': typeof AuthFinanceiroRoute
   '/_auth/infraestrutura': typeof AuthInfraestruturaRoute
   '/_auth/notas': typeof AuthNotasRoute
-  '/_auth/projetos': typeof AuthProjetosRouteWithChildren
   '/_auth/seguranca': typeof AuthSegurancaRoute
   '/_auth/projetos/$id': typeof AuthProjetosIdRoute
   '/_auth/projetos/': typeof AuthProjetosIndexRoute
@@ -171,9 +164,9 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/infraestrutura'
     | '/notas'
-    | '/projetos'
     | '/seguranca'
     | '/projetos/$id'
+    | '/projetos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -187,9 +180,9 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/infraestrutura'
     | '/notas'
-    | '/projetos'
     | '/seguranca'
     | '/projetos/$id'
+    | '/projetos'
   id:
     | '__root__'
     | '/'
@@ -204,7 +197,6 @@ export interface FileRouteTypes {
     | '/_auth/financeiro'
     | '/_auth/infraestrutura'
     | '/_auth/notas'
-    | '/_auth/projetos'
     | '/_auth/seguranca'
     | '/_auth/projetos/$id'
     | '/_auth/projetos/'
@@ -236,13 +228,6 @@ declare module '@tanstack/react-router' {
       path: '/seguranca'
       fullPath: '/seguranca'
       preLoaderRoute: typeof AuthSegurancaRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/projetos': {
-      id: '/_auth/projetos'
-      path: '/projetos'
-      fullPath: '/projetos'
-      preLoaderRoute: typeof AuthProjetosRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/infraestrutura': {
@@ -315,36 +300,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthNotasRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/projetos/$id': {
-      id: '/_auth/projetos/$id'
-      path: '/$id'
-      fullPath: '/projetos/$id'
-      preLoaderRoute: typeof AuthProjetosIdRouteImport
-      parentRoute: typeof AuthProjetosRoute
-    }
     '/_auth/projetos/': {
       id: '/_auth/projetos/'
-      path: '/'
+      path: '/projetos'
       fullPath: '/projetos/'
       preLoaderRoute: typeof AuthProjetosIndexRouteImport
-      parentRoute: typeof AuthProjetosRoute
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/projetos/$id': {
+      id: '/_auth/projetos/$id'
+      path: '/projetos/$id'
+      fullPath: '/projetos/$id'
+      preLoaderRoute: typeof AuthProjetosIdRouteImport
+      parentRoute: typeof AuthRoute
     }
   }
 }
-
-interface AuthProjetosRouteChildren {
-  AuthProjetosIndexRoute: typeof AuthProjetosIndexRoute
-  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
-}
-
-const AuthProjetosRouteChildren: AuthProjetosRouteChildren = {
-  AuthProjetosIndexRoute: AuthProjetosIndexRoute,
-  AuthProjetosIdRoute: AuthProjetosIdRoute,
-}
-
-const AuthProjetosRouteWithChildren = AuthProjetosRoute._addFileChildren(
-  AuthProjetosRouteChildren,
-)
 
 interface AuthRouteChildren {
   AuthAnalyticsRoute: typeof AuthAnalyticsRoute
@@ -357,8 +328,9 @@ interface AuthRouteChildren {
   AuthFinanceiroRoute: typeof AuthFinanceiroRoute
   AuthInfraestruturaRoute: typeof AuthInfraestruturaRoute
   AuthNotasRoute: typeof AuthNotasRoute
-  AuthProjetosRoute: typeof AuthProjetosRouteWithChildren
   AuthSegurancaRoute: typeof AuthSegurancaRoute
+  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
+  AuthProjetosIndexRoute: typeof AuthProjetosIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -372,8 +344,9 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthFinanceiroRoute: AuthFinanceiroRoute,
   AuthInfraestruturaRoute: AuthInfraestruturaRoute,
   AuthNotasRoute: AuthNotasRoute,
-  AuthProjetosRoute: AuthProjetosRouteWithChildren,
   AuthSegurancaRoute: AuthSegurancaRoute,
+  AuthProjetosIdRoute: AuthProjetosIdRoute,
+  AuthProjetosIndexRoute: AuthProjetosIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
