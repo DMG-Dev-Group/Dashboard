@@ -3,7 +3,8 @@ import { useState, type ReactNode } from "react";
 import { NAV_ITEMS, TITULOS, type ViewId } from "./navItems";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { iniciaisDoUsuario, nomeDoUsuario } from "@/lib/userProfile";
-import { Activity, Bell, Menu, Search, ShieldCheck } from "lucide-react";
+import { NotificationsBellClassic } from "./NotificationsBellClassic";
+import { Activity, Menu, Search, ShieldCheck } from "lucide-react";
 
 /**
  * Painel "clássico" — sidebar 280px em vidro escuro, tile de marca serifado,
@@ -112,13 +113,9 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
           />
         </div>
 
-        <button
-          className="relative ml-auto grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[.03] text-white/70 hover:bg-white/10 hover:text-white md:ml-0"
-          title="Notificações"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-dmg-red-solid shadow-[0_0_8px_rgba(192,24,26,.9)]" />
-        </button>
+        <div className="ml-auto md:ml-0">
+          <NotificationsBellClassic />
+        </div>
 
         <button
           onClick={() => {
