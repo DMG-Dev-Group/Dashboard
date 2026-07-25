@@ -5,12 +5,23 @@ import { Button } from "@/components/ui/button";
 import { useStore } from "@/lib/store/StoreProvider";
 import type { Evento } from "@/lib/store/types";
 import { RevenueChart } from "../components/RevenueChart";
-import { StatusBadge } from "../components/StatusBadge";
 import { EventoModal } from "../modals/EventoModal";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { useModal } from "../modals/ModalProvider";
 import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL, fmtDataBR, fmtK, isoDay, mesKey, tempoRelativo } from "@/lib/format";
+import {
+  ClassicActivityItem,
+  ClassicAvatarDot,
+  ClassicEmpty,
+  ClassicMore,
+  ClassicPanel,
+  ClassicPanelTitle,
+  ClassicPill,
+  ClassicProgress,
+  ClassicStatusBadge,
+  ClassicTh,
+} from "../components/classic/ClassicUI";
 
 type DashboardPath = "/financeiro" | "/atividades" | "/calendario" | "/equipe" | "/projetos";
 
@@ -98,8 +109,8 @@ export function DashboardOverviewClassic() {
         <div className="relative grid gap-6 lg:grid-cols-[1.05fr_.95fr]">
           <div className="flex min-h-[280px] flex-col justify-between rounded-3xl border border-dmg-border bg-dmg-bg/40 p-5">
             <div className="flex flex-wrap gap-2">
-              <Pill>Damage OS</Pill>
-              <Pill muted>Painel interno</Pill>
+              <ClassicPill>Damage OS</ClassicPill>
+              <ClassicPill tone="muted">Painel interno</ClassicPill>
             </div>
 
             <div className="py-8">
@@ -218,7 +229,7 @@ export function DashboardOverviewClassic() {
             <div>
               <p className="text-[28px] font-semibold tracking-normal text-dmg-text">{BRL(stats.entradas)}</p>
               <div className="mt-3 flex items-center gap-2 text-xs text-dmg-text-3">
-                <Pill success>{formatDelta(stats.deltaReceita)}</Pill>
+                <ClassicPill tone="success">{formatDelta(stats.deltaReceita)}</ClassicPill>
                 <span>vs. mês anterior</span>
               </div>
             </div>
@@ -275,11 +286,7 @@ export function DashboardOverviewClassic() {
             </thead>
             <tbody>
               {projetosEmAndamento.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-5 py-5 text-center text-sm text-dmg-text-3">
-                    Nenhum projeto em andamento.
-                  </td>
-                </tr>
+                <ClassicEmpty colSpan={4}>Nenhum projeto em andamento.</ClassicEmpty>
               ) : (
                 projetosEmAndamento.map((p) => (
                   <tr key={p.id} className="transition-colors hover:bg-dmg-surface-2/60">
@@ -292,18 +299,13 @@ export function DashboardOverviewClassic() {
                       </Link>
                     </td>
                     <td className="border-b border-dmg-border px-5 py-3.5 text-sm text-dmg-text-2">
-                      <span className="inline-grid h-8 w-8 place-items-center rounded-full border border-dmg-red-dark bg-dmg-red-solid/10 text-xs font-semibold text-dmg-text">
-                        {(p.resp || "?").slice(0, 1)}
-                      </span>
+                      <ClassicAvatarDot>{(p.resp || "?").slice(0, 1)}</ClassicAvatarDot>
                     </td>
                     <td className="border-b border-dmg-border px-5 py-3.5">
-                      <StatusBadge status={p.status} />
+                      <ClassicStatusBadge status={p.status} />
                     </td>
                     <td className="border-b border-dmg-border px-5 py-3.5 text-sm text-dmg-text-2">
-                      <span className="inline-block h-2 w-28 overflow-hidden rounded-full bg-dmg-surface-3 align-middle">
-                        <i className="block h-full rounded-full bg-dmg-red-solid" style={{ width: `${progressoDoProjeto(p)}%` }} />
-                      </span>
-                      <span className="ml-2 text-[13px] text-dmg-text-2">{progressoDoProjeto(p)}%</span>
+                      <ClassicProgress value={progressoDoProjeto(p)} />
                     </td>
                   </tr>
                 ))
@@ -313,55 +315,6 @@ export function DashboardOverviewClassic() {
         </div>
       </ClassicPanel>
     </div>
-  );
-}
-
-function ClassicPanel({
-  title,
-  sub,
-  action,
-  children,
-}: {
-  title: string;
-  sub?: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-dmg-border bg-[linear-gradient(145deg,rgba(255,255,255,.09),rgba(255,255,255,.025)),var(--dmg-bg)] p-5 shadow-[0_22px_70px_rgba(0,0,0,.48),inset_0_1px_0_rgba(255,255,255,.08)] backdrop-blur-lg">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-sm font-semibold tracking-normal text-dmg-text">{title}</h3>
-          {sub && <span className="mt-1 block text-[13px] text-dmg-text-3">{sub}</span>}
-        </div>
-        {action}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function ClassicMore({ to, children }: { to: DashboardPath; children: ReactNode }) {
-  return (
-    <Link to={to} className="whitespace-nowrap text-xs font-medium text-dmg-red hover:underline">
-      {children}
-    </Link>
-  );
-}
-
-function Pill({ children, muted, success }: { children: ReactNode; muted?: boolean; success?: boolean }) {
-  return (
-    <span
-      className={
-        success
-          ? "inline-flex items-center gap-1 rounded-full border border-dmg-ok/30 bg-dmg-ok/10 px-2.5 py-1 text-xs font-medium text-dmg-ok"
-          : muted
-            ? "inline-flex items-center gap-1 rounded-full border border-dmg-border bg-dmg-surface-2 px-2.5 py-1 text-xs font-medium text-dmg-text-2"
-            : "inline-flex items-center gap-1 rounded-full border border-dmg-red-dark bg-dmg-red-solid/15 px-2.5 py-1 text-xs font-medium text-dmg-text"
-      }
-    >
-      {children}
-    </span>
   );
 }
 
@@ -417,7 +370,7 @@ function MetricCard({
         <span className="grid h-11 w-11 place-items-center rounded-xl border border-dmg-red-dark bg-dmg-red-solid/15 text-dmg-red">
           {icon}
         </span>
-        <Pill muted={badgeTone === "muted"} success={badgeTone === "success"}>{badge}</Pill>
+        <ClassicPill tone={badgeTone ?? "default"}>{badge}</ClassicPill>
       </div>
       <p className="relative mt-5 text-xs font-medium uppercase tracking-[0.18em] text-dmg-text-3">{label}</p>
       <p className="relative mt-2 text-2xl font-semibold tracking-normal text-dmg-text">{value}</p>
@@ -428,20 +381,14 @@ function MetricCard({
 
 function ActivityList({ items }: { items: { id: string; texto: string; ts: number }[] }) {
   if (items.length === 0) {
-    return <p className="rounded-2xl border border-dmg-border bg-dmg-surface-2/60 p-3 text-[13px] text-dmg-text-3">Sem atividades recentes.</p>;
+    return <ClassicEmpty>Sem atividades recentes.</ClassicEmpty>;
   }
   return (
     <div className="space-y-3.5">
       {items.map((a) => (
-        <div key={a.id} className="flex gap-3.5">
-          <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-dmg-red-dark bg-dmg-red-solid/15 text-[13px] text-dmg-red">
-            <Activity className="h-3.5 w-3.5" />
-          </span>
-          <div className="min-w-0 flex-1 rounded-2xl border border-dmg-border bg-dmg-surface-2/60 p-3 text-[13.5px] leading-6 text-dmg-text-2 [&_b]:font-semibold [&_b]:text-dmg-text">
-            <div dangerouslySetInnerHTML={{ __html: a.texto }} />
-            <span className="mt-2 block text-xs text-dmg-text-3">{tempoRelativo(a.ts)}</span>
-          </div>
-        </div>
+        <ClassicActivityItem key={a.id} icon={<Activity className="h-3.5 w-3.5" />} time={tempoRelativo(a.ts)}>
+          <div dangerouslySetInnerHTML={{ __html: a.texto }} />
+        </ClassicActivityItem>
       ))}
     </div>
   );
@@ -449,22 +396,18 @@ function ActivityList({ items }: { items: { id: string; texto: string; ts: numbe
 
 function EventList({ eventos }: { eventos: Evento[] }) {
   if (eventos.length === 0) {
-    return <p className="rounded-2xl border border-dmg-border bg-dmg-surface-2/60 p-3 text-[13px] text-dmg-text-3">Calendário livre.</p>;
+    return <ClassicEmpty>Calendário livre.</ClassicEmpty>;
   }
   return (
     <div className="space-y-3.5">
       {eventos.map((evento) => (
-        <div key={evento.id} className="flex gap-3.5">
-          <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-dmg-red-dark bg-dmg-red-solid/15 text-dmg-red">
-            <CalendarDays className="h-3.5 w-3.5" />
-          </span>
-          <div className="min-w-0 flex-1 rounded-2xl border border-dmg-border bg-dmg-surface-2/60 p-3">
-            <p className="truncate text-[13.5px] font-semibold text-dmg-text">{evento.titulo}</p>
-            <span className="mt-2 block text-xs text-dmg-text-3">
-              {fmtDataBR(evento.data)}{evento.hora ? ` · ${evento.hora}` : ""}
-            </span>
-          </div>
-        </div>
+        <ClassicActivityItem
+          key={evento.id}
+          icon={<CalendarDays className="h-3.5 w-3.5" />}
+          time={`${fmtDataBR(evento.data)}${evento.hora ? ` · ${evento.hora}` : ""}`}
+        >
+          <p className="truncate text-[13.5px] font-semibold text-dmg-text">{evento.titulo}</p>
+        </ClassicActivityItem>
       ))}
     </div>
   );
@@ -508,10 +451,6 @@ function TeamRow({ initial, name, stack, warn }: { initial: string; name: string
       <span className={`ml-auto h-2 w-2 rounded-full ${warn ? "bg-dmg-warn shadow-[0_0_8px_var(--dmg-warn)]" : "bg-dmg-ok shadow-[0_0_8px_var(--dmg-ok)]"}`} />
     </div>
   );
-}
-
-function ClassicTh({ children }: { children: ReactNode }) {
-  return <th className="px-5 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-dmg-text-3">{children}</th>;
 }
 
 function eventMeta(evento?: Evento) {
