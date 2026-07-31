@@ -9,69 +9,34 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
-import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
-import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
-import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
-import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
-import { Route as AuthConfigRouteImport } from './routes/_auth.config'
-import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
-import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
-import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
+import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
+import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
+import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
+import { Route as AuthConfigRouteImport } from './routes/_auth.config'
+import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
+import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
+import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
+import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
 import { Route as AuthNotasRouteImport } from './routes/_auth.notas'
+import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
 import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
 import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
-  id: '/seguranca',
-  path: '/seguranca',
-  getParentRoute: () => AuthRoute,
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
-  id: '/infraestrutura',
-  path: '/infraestrutura',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthFinanceiroRoute = AuthFinanceiroRouteImport.update({
-  id: '/financeiro',
-  path: '/financeiro',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthEquipeRoute = AuthEquipeRouteImport.update({
-  id: '/equipe',
-  path: '/equipe',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthDashboardRoute = AuthDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthConfigRoute = AuthConfigRouteImport.update({
-  id: '/config',
-  path: '/config',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthClientesRoute = AuthClientesRouteImport.update({
-  id: '/clientes',
-  path: '/clientes',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthCalendarioRoute = AuthCalendarioRouteImport.update({
-  id: '/calendario',
-  path: '/calendario',
+const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthAtividadesRoute = AuthAtividadesRouteImport.update({
@@ -79,14 +44,49 @@ const AuthAtividadesRoute = AuthAtividadesRouteImport.update({
   path: '/atividades',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
+const AuthCalendarioRoute = AuthCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthClientesRoute = AuthClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthConfigRoute = AuthConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthDashboardRoute = AuthDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthEquipeRoute = AuthEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthFinanceiroRoute = AuthFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
+  id: '/infraestrutura',
+  path: '/infraestrutura',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthNotasRoute = AuthNotasRouteImport.update({
   id: '/notas',
   path: '/notas',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
+  id: '/seguranca',
+  path: '/seguranca',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
@@ -209,13 +209,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -223,60 +216,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/seguranca': {
-      id: '/_auth/seguranca'
-      path: '/seguranca'
-      fullPath: '/seguranca'
-      preLoaderRoute: typeof AuthSegurancaRouteImport
-      parentRoute: typeof AuthRoute
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_auth/infraestrutura': {
-      id: '/_auth/infraestrutura'
-      path: '/infraestrutura'
-      fullPath: '/infraestrutura'
-      preLoaderRoute: typeof AuthInfraestruturaRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/financeiro': {
-      id: '/_auth/financeiro'
-      path: '/financeiro'
-      fullPath: '/financeiro'
-      preLoaderRoute: typeof AuthFinanceiroRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/equipe': {
-      id: '/_auth/equipe'
-      path: '/equipe'
-      fullPath: '/equipe'
-      preLoaderRoute: typeof AuthEquipeRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/config': {
-      id: '/_auth/config'
-      path: '/config'
-      fullPath: '/config'
-      preLoaderRoute: typeof AuthConfigRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/clientes': {
-      id: '/_auth/clientes'
-      path: '/clientes'
-      fullPath: '/clientes'
-      preLoaderRoute: typeof AuthClientesRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/calendario': {
-      id: '/_auth/calendario'
-      path: '/calendario'
-      fullPath: '/calendario'
-      preLoaderRoute: typeof AuthCalendarioRouteImport
+    '/_auth/analytics': {
+      id: '/_auth/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthAnalyticsRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/atividades': {
@@ -286,11 +237,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAtividadesRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/analytics': {
-      id: '/_auth/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AuthAnalyticsRouteImport
+    '/_auth/calendario': {
+      id: '/_auth/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthCalendarioRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/clientes': {
+      id: '/_auth/clientes'
+      path: '/clientes'
+      fullPath: '/clientes'
+      preLoaderRoute: typeof AuthClientesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/config': {
+      id: '/_auth/config'
+      path: '/config'
+      fullPath: '/config'
+      preLoaderRoute: typeof AuthConfigRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/dashboard': {
+      id: '/_auth/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/equipe': {
+      id: '/_auth/equipe'
+      path: '/equipe'
+      fullPath: '/equipe'
+      preLoaderRoute: typeof AuthEquipeRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/financeiro': {
+      id: '/_auth/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof AuthFinanceiroRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/infraestrutura': {
+      id: '/_auth/infraestrutura'
+      path: '/infraestrutura'
+      fullPath: '/infraestrutura'
+      preLoaderRoute: typeof AuthInfraestruturaRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/notas': {
@@ -298,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/notas'
       fullPath: '/notas'
       preLoaderRoute: typeof AuthNotasRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/seguranca': {
+      id: '/_auth/seguranca'
+      path: '/seguranca'
+      fullPath: '/seguranca'
+      preLoaderRoute: typeof AuthSegurancaRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/projetos/': {
@@ -358,3 +358,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

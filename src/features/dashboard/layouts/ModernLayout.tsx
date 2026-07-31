@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import { NAV_ITEMS, TITULOS, type ViewId } from "./navItems";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { iniciaisDoUsuario, nomeDoUsuario } from "@/lib/userProfile";
+import { NotificationsBellModern } from "./NotificationsBellModern";
 import logoUrl from "@/assets/logo.svg";
 import { Menu } from "lucide-react";
 
@@ -100,6 +101,7 @@ export function ModernLayout({ children }: { children: ReactNode }) {
             year: "numeric",
           })}
         </span>
+        <NotificationsBellModern />
         <button
           onClick={() => {
             if (user && confirm(`Sair da conta de ${nome}?`)) signOut();
