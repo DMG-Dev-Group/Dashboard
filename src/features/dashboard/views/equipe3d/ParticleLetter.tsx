@@ -3,15 +3,6 @@ import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 import { createDotTexture, sampleLetterPoints } from "./particlePoints";
 
-export interface Member3DData {
-  id: string;
-  letter: string;
-  name: string;
-  age: string;
-  photo: string;
-  stack: string[];
-}
-
 interface Props {
   id: string;
   letter: string;

@@ -1,7 +1,9 @@
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Environment, Lightformer, MeshReflectorMaterial } from "@react-three/drei";
 import * as THREE from "three";
-import { LETTER_HIT_W, ParticleLetter, type Member3DData } from "./ParticleLetter";
+import { CARD_W, MemberCard3D, type Member3DData } from "./MemberCard3D";
+import { ParticleLetter } from "./ParticleLetter";
 
 interface Props {
   members: Member3DData[];
@@ -20,7 +22,6 @@ export function EquipeScene({ members }: Props) {
   const [ready, setReady] = useState(false);
   const [webgl, setWebgl] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
     setWebgl(supportsWebGL());
@@ -29,91 +30,81 @@ export function EquipeScene({ members }: Props) {
     setReady(true);
   }, []);
 
-  if (!ready) return <div className="h-[640px]" />;
+  if (!ready) return <div className="h-[900px]" />;
 
   if (!webgl) return <FallbackGrid members={members} />;
 
-  const activeMember = members.find((m) => m.id === activeId) ?? null;
-
   return (
-    <div className="relative h-[640px] w-full overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(192,24,26,.14),transparent_60%),#050505]">
-      <SceneErrorBoundary fallback={<FallbackGrid members={members} />}>
-        <Canvas
-          dpr={[1, 1.8]}
-          camera={{ position: [0, 0.3, 7.4], fov: 32 }}
-          gl={{ antialias: true, alpha: true }}
-        >
-          <SceneContent members={members} reducedMotion={reducedMotion} activeId={activeId} onSelect={setActiveId} />
-        </Canvas>
-      </SceneErrorBoundary>
-
-      <div className="pointer-events-none absolute inset-x-0 top-5 text-center">
+    <div className="space-y-6">
+      <div className="text-center">
         <p className="font-mono text-[11px] font-bold uppercase tracking-[0.32em] text-dmg-red-solid">
           // quem somos
         </p>
         <h2 className="mt-1 text-2xl font-extrabold text-white md:text-3xl">Os fundadores da DMG</h2>
       </div>
 
-      {/* rótulos sempre visíveis, um sob cada letra */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-[76px] flex justify-around px-10 md:px-24">
-        {members.map((m) => (
-          <span
-            key={m.id}
-            className={`font-mono text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 ${
-              activeId === m.id ? "text-dmg-red-solid" : "text-white/35"
-            }`}
-          >
-            {m.name}
-          </span>
-        ))}
-      </div>
+      <DmgHeader reducedMotion={reducedMotion} />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-6">
-        {activeMember ? (
-          <div className="pointer-events-auto flex w-full max-w-md items-center gap-4 rounded-2xl border border-dmg-border-strong bg-dmg-surface/90 p-3 backdrop-blur-sm">
-            <img
-              src={activeMember.photo}
-              alt={activeMember.name}
-              className="h-14 w-14 shrink-0 rounded-lg object-cover"
-            />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-base font-extrabold text-white">
-                {activeMember.name}{" "}
-                <span className="font-mono text-xs font-normal text-white/40">{activeMember.age}</span>
-              </p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {activeMember.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded border border-dmg-border-strong bg-dmg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-dmg-text-2"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/30">
-            clique numa letra pra revelar quem é
-          </p>
-        )}
+      <div className="relative h-[640px] w-full overflow-hidden rounded-[28px] border border-white/10 bg-[radial-gradient(120%_100%_at_50%_0%,rgba(192,24,26,.14),transparent_60%),#050505]">
+        <SceneErrorBoundary fallback={<FallbackGrid members={members} />}>
+          <Canvas
+            dpr={[1, 1.8]}
+            camera={{ position: [0, 0.4, 7.2], fov: 32 }}
+            gl={{ antialias: true, alpha: true }}
+          >
+            <SceneContent members={members} reducedMotion={reducedMotion} />
+          </Canvas>
+        </SceneErrorBoundary>
+        <p className="pointer-events-none absolute inset-x-0 bottom-4 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-white/30">
+          clique num card para revelar a stack
+        </p>
       </div>
     </div>
   );
 }
 
-function SceneContent({
-  members,
-  reducedMotion,
-  activeId,
-  onSelect,
-}: {
-  members: Member3DData[];
-  reducedMotion: boolean;
-  activeId: string | null;
-  onSelect: (id: string | null) => void;
-}) {
+/** Cabeçalho decorativo — as mesmas partículas com "vento" da seção antiga, compactas, só como assinatura visual. */
+function DmgHeader({ reducedMotion }: { reducedMotion: boolean }) {
+  return (
+    <div className="relative h-[220px] w-full overflow-hidden rounded-2xl border border-white/10 bg-[radial-gradient(120%_140%_at_50%_10%,rgba(192,24,26,.16),transparent_65%),#050505]">
+      <SceneErrorBoundary fallback={null}>
+        <Canvas dpr={[1, 1.8]} camera={{ position: [0, 0, 6.6], fov: 30 }} gl={{ antialias: true, alpha: true }}>
+          <ambientLight intensity={0.4} />
+          <pointLight position={[0, 1, 4]} color="#ff4d4f" intensity={1.4} distance={10} />
+          <DmgHeaderContent reducedMotion={reducedMotion} />
+        </Canvas>
+      </SceneErrorBoundary>
+    </div>
+  );
+}
+
+function DmgHeaderContent({ reducedMotion }: { reducedMotion: boolean }) {
+  const { viewport } = useThree();
+  const positions = useMemo<[number, number, number][]>(() => {
+    const gap = THREE.MathUtils.clamp(viewport.width * 0.24, 1.35, 1.75);
+    return [-gap, 0, gap].map((x) => [x, 0, 0] as [number, number, number]);
+  }, [viewport.width]);
+
+  return (
+    <>
+      {["D", "M", "G"].map((letter, i) => (
+        <ParticleLetter
+          key={letter}
+          id={letter}
+          letter={letter}
+          basePosition={positions[i]}
+          active={false}
+          dimmed={false}
+          onSelect={() => {}}
+          reducedMotion={reducedMotion}
+        />
+      ))}
+    </>
+  );
+}
+
+function SceneContent({ members, reducedMotion }: { members: Member3DData[]; reducedMotion: boolean }) {
+  const [activeId, setActiveId] = useState<string | null>(null);
   const rig = useRef<THREE.Group>(null!);
   const pointer = useRef({ x: 0, y: 0 });
 
@@ -128,20 +119,20 @@ function SceneContent({
 
   useFrame((_, delta) => {
     if (!rig.current || reducedMotion) return;
-    const targetRotY = pointer.current.x * 0.06;
-    const targetRotX = -pointer.current.y * 0.03;
+    const targetRotY = pointer.current.x * 0.08;
+    const targetRotX = -pointer.current.y * 0.04;
     rig.current.rotation.y = THREE.MathUtils.damp(rig.current.rotation.y, targetRotY, 4, delta);
     rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, targetRotX, 4, delta);
   });
 
-  // espaçamento responsivo — mesma lógica usada antes pros cards, evitando
-  // que as letras das pontas estourem as bordas arredondadas do container
+  // espaçamento responsivo — evita que os cards das pontas encostem/estourem
+  // as bordas arredondadas do container em telas mais estreitas
   const { viewport } = useThree();
   const positions = useMemo<[number, number, number][]>(() => {
     const maxSpan = viewport.width * 0.8;
     const gap =
       members.length > 1
-        ? THREE.MathUtils.clamp((maxSpan - LETTER_HIT_W) / (members.length - 1), 1.7, 2.3)
+        ? THREE.MathUtils.clamp((maxSpan - CARD_W) / (members.length - 1), 1.5, 2.55)
         : 0;
     const startX = -((members.length - 1) * gap) / 2;
     return members.map((_, i) => [startX + i * gap, 0, 0] as [number, number, number]);
@@ -149,22 +140,45 @@ function SceneContent({
 
   return (
     <>
-      <ambientLight intensity={0.4} />
-      <pointLight position={[0, 1, 4]} color="#ff4d4f" intensity={1.4} distance={10} />
+      <ambientLight intensity={0.35} />
+      <directionalLight position={[3, 5, 4]} intensity={1.1} color="#ffffff" />
+      <pointLight position={[-4, -2, 2]} color="#c0181a" intensity={2.2} distance={9} />
 
-      <group ref={rig} onPointerMissed={() => onSelect(null)}>
+      <Environment resolution={256}>
+        <Lightformer form="rect" intensity={2} color="#ffffff" position={[0, 3, 2]} scale={[4, 2, 1]} />
+        <Lightformer form="rect" intensity={3} color="#ff4d4f" position={[-4, 0, -2]} scale={[2, 4, 1]} />
+        <Lightformer form="rect" intensity={1.5} color="#8899ff" position={[4, -1, -2]} scale={[2, 4, 1]} />
+      </Environment>
+
+      <group ref={rig} onPointerMissed={() => setActiveId(null)}>
         {members.map((m, i) => (
-          <ParticleLetter
+          <MemberCard3D
             key={m.id}
-            id={m.id}
-            letter={m.letter}
+            member={m}
             basePosition={positions[i]}
             active={activeId === m.id}
             dimmed={activeId !== null && activeId !== m.id}
-            onSelect={onSelect}
+            onSelect={setActiveId}
             reducedMotion={reducedMotion}
           />
         ))}
+
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.85, 0]}>
+          <planeGeometry args={[24, 12]} />
+          <MeshReflectorMaterial
+            blur={[200, 50]}
+            resolution={256}
+            mixBlur={1}
+            mixStrength={30}
+            roughness={1}
+            depthScale={1.1}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.2}
+            color="#050505"
+            metalness={0.4}
+            mirror={0}
+          />
+        </mesh>
       </group>
     </>
   );
