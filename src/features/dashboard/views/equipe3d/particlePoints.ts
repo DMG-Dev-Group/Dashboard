@@ -36,7 +36,8 @@ export function sampleLetterPoints(letter: string, count: number, height = 2.6):
     const jy = y + (Math.random() - 0.5) * 1.4;
     const nx = (jx / res - 0.5) * height;
     const ny = -(jy / res - 0.5) * height;
-    const nz = (Math.random() - 0.5) * 0.3;
+    // volume bem mais profundo — a letra é um bloco 3D de partículas, não um plano fino
+    const nz = (Math.random() - 0.5) * height * 0.55;
     positions[i * 3] = nx;
     positions[i * 3 + 1] = ny;
     positions[i * 3 + 2] = nz;
@@ -53,7 +54,8 @@ export function createDotTexture(): THREE.CanvasTexture {
   const ctx = canvas.getContext("2d")!;
   const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
   grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(0.4, "rgba(255,255,255,0.65)");
+  grad.addColorStop(0.3, "rgba(255,255,255,0.9)");
+  grad.addColorStop(0.6, "rgba(255,255,255,0.45)");
   grad.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
