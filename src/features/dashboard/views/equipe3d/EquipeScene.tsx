@@ -1,8 +1,8 @@
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, MeshReflectorMaterial } from "@react-three/drei";
 import * as THREE from "three";
-import { MemberCard3D, type Member3DData } from "./MemberCard3D";
+import { CARD_W, MemberCard3D, type Member3DData } from "./MemberCard3D";
 
 interface Props {
   members: Member3DData[];
@@ -79,11 +79,18 @@ function SceneContent({ members, reducedMotion }: { members: Member3DData[]; red
     rig.current.rotation.x = THREE.MathUtils.damp(rig.current.rotation.x, targetRotX, 4, delta);
   });
 
+  // espaçamento responsivo — evita que os cards das pontas encostem/estourem
+  // as bordas arredondadas do container em telas mais estreitas
+  const { viewport } = useThree();
   const positions = useMemo<[number, number, number][]>(() => {
-    const gap = 2.55;
+    const maxSpan = viewport.width * 0.8;
+    const gap =
+      members.length > 1
+        ? THREE.MathUtils.clamp((maxSpan - CARD_W) / (members.length - 1), 1.5, 2.55)
+        : 0;
     const startX = -((members.length - 1) * gap) / 2;
     return members.map((_, i) => [startX + i * gap, 0, 0] as [number, number, number]);
-  }, [members]);
+  }, [members, viewport.width]);
 
   return (
     <>

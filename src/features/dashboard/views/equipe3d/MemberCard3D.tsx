@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { RoundedBox, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { createChipTexture, createLabelTexture, createLetterTexture } from "./textures";
+import { createChipTexture, createLabelTexture } from "./textures";
 
 export interface Member3DData {
   id: string;
@@ -22,21 +22,19 @@ interface Props {
   reducedMotion: boolean;
 }
 
-const CARD_W = 2.15;
-const CARD_H = 2.9;
+export const CARD_W = 2.15;
+export const CARD_H = 2.9;
 
 export function MemberCard3D({ member, basePosition, active, dimmed, onSelect, reducedMotion }: Props) {
   const outer = useRef<THREE.Group>(null!);
   const tiltGroup = useRef<THREE.Group>(null!);
   const rimLight = useRef<THREE.PointLight>(null!);
-  const letterMesh = useRef<THREE.Mesh>(null!);
 
   const [hovered, setHovered] = useState(false);
   const tilt = useRef({ x: 0, y: 0 });
   const mountedAt = useRef(performance.now());
 
   const photoTex = useTexture(member.photo);
-  const letterTex = useMemo(() => createLetterTexture(member.letter), [member.letter]);
   const labelTex = useMemo(() => createLabelTexture(member.name, member.age), [member.name, member.age]);
   const chipTextures = useMemo(() => member.stack.map((s) => createChipTexture(s)), [member.stack]);
 
@@ -59,7 +57,7 @@ export function MemberCard3D({ member, basePosition, active, dimmed, onSelect, r
     const bob = reducedMotion ? 0 : Math.sin(t * 0.9 + basePosition[0] * 2) * 0.05;
 
     const focusZ = active ? 0.85 : dimmed ? -0.55 : 0;
-    const focusX = active ? 0 : dimmed ? basePosition[0] * 1.6 : basePosition[0];
+    const focusX = active ? 0 : dimmed ? basePosition[0] * 1.1 : basePosition[0];
     const focusY = active ? 0.55 : basePosition[1] + bob;
     const targetScale = active ? 1.14 : dimmed ? 0.82 : 1;
 
@@ -80,10 +78,6 @@ export function MemberCard3D({ member, basePosition, active, dimmed, onSelect, r
     const desiredTiltY = hovered ? tilt.current.y * 0.32 + idleRotY : idleRotY;
     tiltGroup.current.rotation.x = THREE.MathUtils.damp(tiltGroup.current.rotation.x, desiredTiltX, 6, delta);
     tiltGroup.current.rotation.y = THREE.MathUtils.damp(tiltGroup.current.rotation.y, desiredTiltY, 6, delta);
-
-    if (letterMesh.current) {
-      letterMesh.current.rotation.z = active ? 0 : t * 0.05 + basePosition[0];
-    }
 
     if (rimLight.current) {
       const targetIntensity = hovered || active ? 3.2 : 1.1;
@@ -119,13 +113,6 @@ export function MemberCard3D({ member, basePosition, active, dimmed, onSelect, r
             attenuationDistance={1.4}
           />
         </RoundedBox>
-
-        {/* letra gigante — logo à frente do vidro, atrás da foto: sensação real de
-            profundidade em camadas (a foto ocluindo o centro da letra) */}
-        <mesh ref={letterMesh} position={[0, 0.05, 0.075]}>
-          <planeGeometry args={[3.1, 3.1]} />
-          <meshBasicMaterial map={letterTex} transparent depthWrite={false} />
-        </mesh>
 
         {/* nome/idade — gravados no vidro, logo abaixo da foto */}
         <mesh position={[0, -CARD_H / 2 + 0.42, 0.095]}>

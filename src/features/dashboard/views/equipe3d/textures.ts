@@ -1,29 +1,5 @@
 import * as THREE from "three";
 
-/**
- * Gera a textura da letra gigante (marca d'água) desenhando num canvas 2D
- * offscreen — sem depender de carregar fontes externas (Text3D exigiria um
- * .json de fonte; isso funciona 100% offline com a fonte do sistema).
- */
-export function createLetterTexture(letter: string, color = "rgba(255,90,90,0.16)"): THREE.CanvasTexture {
-  const size = 1024;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, size, size);
-  ctx.font = `900 ${size * 0.9}px Georgia, "Times New Roman", serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = color;
-  ctx.fillText(letter, size / 2, size * 0.58);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 4;
-  tex.needsUpdate = true;
-  return tex;
-}
-
 /** Textura pequena com o texto de um chip de stack (ex.: "React"). */
 export function createChipTexture(label: string): THREE.CanvasTexture {
   const w = 512;
