@@ -2,7 +2,7 @@ import danImg from "@/assets/dan.png";
 import migoImg from "@/assets/migo.png";
 import guiguiImg from "@/assets/guigui.png";
 import { EquipeScene } from "./equipe3d/EquipeScene";
-import type { Member3DData } from "./equipe3d/MemberCard3D";
+import type { Member3DData } from "./equipe3d/ParticleLetter";
 
 const members: Member3DData[] = [
   {
