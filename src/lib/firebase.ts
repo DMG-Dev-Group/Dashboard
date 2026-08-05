@@ -2,13 +2,16 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, initializeFirestore, type Firestore } from "firebase/firestore";
 
+// Fallback pros valores originais do projeto: VITE_FIREBASE_* nunca foi configurado
+// no Vercel, então em produção isso resolvia pra string vazia e o Firebase Auth
+// explodia com "auth/invalid-api-key" assim que o app carregava.
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCYPZBy_sVo6ZI-RdMZ4wXZ6P7WZx98RNQ",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "dmgdev-group.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "dmgdev-group",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "dmgdev-group.appspot.com",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "705819967455",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:705819967455:web:f3a40d0053ae7ac5b3ce6a",
 };
 
 let _app: FirebaseApp | null = null;
