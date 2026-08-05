@@ -4,8 +4,9 @@ import { useModal } from "../modals/ModalProvider";
 import { useConfirm } from "../components/ConfirmProvider";
 import { ClienteModal } from "../modals/ClienteModal";
 import { projetosDoCliente } from "@/lib/store/relations";
+import { calcularIdade } from "@/lib/format";
 import { dmgToast } from "@/lib/toast";
-import { Plus, Trash2 } from "lucide-react";
+import { Building2, Instagram, Pencil, Plus, Trash2 } from "lucide-react";
 import { ClassicButtonSm, ClassicEmpty, ClassicIconMini, ClassicPanel } from "../components/classic/ClassicUI";
 
 export function ClientesViewClassic() {
@@ -29,6 +30,8 @@ export function ClientesViewClassic() {
         <div className="grid grid-cols-1 gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))]">
           {clientes.map((c) => {
             const projs = projetosDoCliente(c, projetos);
+            const contato = c.celular || c.email || c.contato;
+            const idade = c.nascimento ? calcularIdade(c.nascimento) : null;
             return (
               <div
                 key={c.id}
@@ -39,8 +42,29 @@ export function ClientesViewClassic() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[14.5px] font-semibold text-dmg-text">{c.nome}</div>
-                  <div className="truncate text-xs text-dmg-text-2">{c.contato || "sem contato"}</div>
-                  <div className="mt-1 text-[11px] text-white/32">cliente desde {c.desde || "—"}</div>
+                  {c.nomeCompleto && c.nomeCompleto !== c.nome && (
+                    <div className="truncate text-[11px] text-white/40">{c.nomeCompleto}</div>
+                  )}
+                  <div className="truncate text-xs text-dmg-text-2">{contato || "sem contato"}</div>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-white/32">
+                    <span>desde {c.desde || "—"}</span>
+                    {idade !== null && <span>{idade} anos</span>}
+                    {c.empresa && (
+                      <span className="inline-flex items-center gap-1">
+                        <Building2 className="h-3 w-3" /> {c.empresa}
+                      </span>
+                    )}
+                    {c.instagram && (
+                      <a
+                        href={`https://instagram.com/${c.instagram.replace(/^@/, "")}`}
+                        target="_blank"
+                        rel="noopener"
+                        className="inline-flex items-center gap-1 hover:text-dmg-red"
+                      >
+                        <Instagram className="h-3 w-3" /> {c.instagram}
+                      </a>
+                    )}
+                  </div>
                   {projs.length > 0 && (
                     <div className="mt-2.5 flex flex-wrap gap-1.5">
                       {projs.map((p) => (
@@ -56,18 +80,22 @@ export function ClientesViewClassic() {
                     </div>
                   )}
                 </div>
-                <ClassicIconMini
-                  className="absolute right-2 top-2 opacity-0 group-hover:opacity-100"
-                  onClick={async () => {
-                    if (await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })) {
-                      await remove("clientes", c.id);
-                      await log(`<b>Cliente</b> — ${c.nome} removido`, "cliente");
-                      dmgToast.success("Cliente removido");
-                    }
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </ClassicIconMini>
+                <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100">
+                  <ClassicIconMini onClick={() => open("Editar cliente", (close) => <ClienteModal cliente={c} onClose={close} />)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </ClassicIconMini>
+                  <ClassicIconMini
+                    onClick={async () => {
+                      if (await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })) {
+                        await remove("clientes", c.id);
+                        await log(`<b>Cliente</b> — ${c.nome} removido`, "cliente");
+                        dmgToast.success("Cliente removido");
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </ClassicIconMini>
+                </div>
               </div>
             );
           })}

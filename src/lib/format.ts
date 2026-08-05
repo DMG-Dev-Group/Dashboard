@@ -32,3 +32,15 @@ export function fmtDia(iso: string): string {
 export function fmtDataBR(iso: string): string {
   return new Date(iso + "T12:00").toLocaleDateString("pt-BR");
 }
+
+/** Idade calculada a partir da data de nascimento (ISO) — nunca guarde a idade pronta, ela envelhece errado. */
+export function calcularIdade(nascimentoISO: string): number {
+  const nasc = new Date(nascimentoISO + "T12:00");
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const aindaNaoFezAniversario =
+    hoje.getMonth() < nasc.getMonth() ||
+    (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate());
+  if (aindaNaoFezAniversario) idade--;
+  return idade;
+}

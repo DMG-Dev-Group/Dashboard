@@ -26,7 +26,15 @@ export interface Projeto {
 export interface Cliente {
   id: string;
   nome: string;
+  nomeCompleto?: string;
+  /** @deprecated legado — clientes antigos podem ter só isso, sem celular/email separados */
   contato?: string;
+  celular?: string;
+  email?: string;
+  instagram?: string;
+  /** ISO date — guarda a data de nascimento, não a idade (senão o dado envelhece errado) */
+  nascimento?: string;
+  empresa?: string;
   desde?: string;
 }
 
