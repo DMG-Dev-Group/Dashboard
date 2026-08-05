@@ -10,7 +10,8 @@ export function isoDay(d: Date | string | number): string {
   return x.toISOString().slice(0, 10);
 }
 
-export const mesKey = (iso: string) => iso.slice(0, 7);
+/** "" pra entrada ausente/malformada (dado legado) em vez de estourar — o item só fica de fora do agrupamento por mês. */
+export const mesKey = (iso: string) => (typeof iso === "string" ? iso.slice(0, 7) : "");
 
 export function tempoRelativo(ts: number): string {
   const m = Math.round((Date.now() - ts) / 60000);
