@@ -40,7 +40,11 @@ export function fmtDataHoraCompleta(ts: number): string {
  */
 export function fmtAtividadeTexto(ts: number): string {
   if (Date.now() - ts > UMA_SEMANA_MS) {
-    return new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(ts).toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   }
   return tempoRelativo(ts);
 }

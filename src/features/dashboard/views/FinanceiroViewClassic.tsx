@@ -8,7 +8,14 @@ import { LancamentoModal } from "../modals/LancamentoModal";
 import { dmgToast } from "@/lib/toast";
 import { receitaVeioDoBanco } from "@/lib/store/types";
 import { Building2, Pencil, Plus, Trash2, UserPen } from "lucide-react";
-import { ClassicButtonSm, ClassicEmpty, ClassicIconMini, ClassicPanel, ClassicPill, ClassicTh } from "../components/classic/ClassicUI";
+import {
+  ClassicButtonSm,
+  ClassicEmpty,
+  ClassicIconMini,
+  ClassicPanel,
+  ClassicPill,
+  ClassicTh,
+} from "../components/classic/ClassicUI";
 
 type FiltroOrigem = "todos" | "manual" | "banco";
 
@@ -19,7 +26,9 @@ export function FinanceiroViewClassic() {
   const [filtroOrigem, setFiltroOrigem] = useState<FiltroOrigem>("todos");
   const k = mesKey(isoDay(new Date()));
   const doMes = receitas.filter((l) => mesKey(l.data) === k);
-  const entradas = doMes.filter((l) => l.tipo === "entrada").reduce((s, l) => s + Number(l.valor), 0);
+  const entradas = doMes
+    .filter((l) => l.tipo === "entrada")
+    .reduce((s, l) => s + Number(l.valor), 0);
   const saidas = doMes.filter((l) => l.tipo === "saida").reduce((s, l) => s + Number(l.valor), 0);
 
   const filtrada = receitas.filter((l) => {
@@ -27,7 +36,10 @@ export function FinanceiroViewClassic() {
     if (filtroOrigem === "banco") return receitaVeioDoBanco(l);
     return true;
   });
-  const lista = filtrada.slice().sort((a, b) => b.data.localeCompare(a.data)).slice(0, 25);
+  const lista = filtrada
+    .slice()
+    .sort((a, b) => b.data.localeCompare(a.data))
+    .slice(0, 25);
 
   return (
     <div className="flex flex-col gap-5">
@@ -51,7 +63,11 @@ export function FinanceiroViewClassic() {
               <option value="manual">manual</option>
               <option value="banco">banco</option>
             </select>
-            <ClassicButtonSm onClick={() => open("Novo lançamento", (close) => <LancamentoModal onClose={close} />)}>
+            <ClassicButtonSm
+              onClick={() =>
+                open("Novo lançamento", (close) => <LancamentoModal onClose={close} />)
+              }
+            >
               <Plus className="h-3.5 w-3.5" /> novo lançamento
             </ClassicButtonSm>
           </div>
@@ -72,7 +88,9 @@ export function FinanceiroViewClassic() {
             </thead>
             <tbody>
               {lista.length === 0 ? (
-                <ClassicEmpty colSpan={7}>Nenhum lançamento — registre a primeira entrada.</ClassicEmpty>
+                <ClassicEmpty colSpan={7}>
+                  Nenhum lançamento — registre a primeira entrada.
+                </ClassicEmpty>
               ) : (
                 lista.map((l) => {
                   const proj = l.projetoId ? projetos.find((p) => p.id === l.projetoId) : null;
@@ -90,12 +108,18 @@ export function FinanceiroViewClassic() {
                             {proj.nome} →
                           </Link>
                         ) : (
-                          <span className="font-mono text-[11px] text-dmg-text-3">{l.projeto || "—"}</span>
+                          <span className="font-mono text-[11px] text-dmg-text-3">
+                            {l.projeto || "—"}
+                          </span>
                         )}
                       </td>
                       <td className="border-b border-white/8 px-5 py-3">
                         <ClassicPill tone={banco ? "default" : "muted"}>
-                          {banco ? <Building2 className="h-3 w-3" /> : <UserPen className="h-3 w-3" />}
+                          {banco ? (
+                            <Building2 className="h-3 w-3" />
+                          ) : (
+                            <UserPen className="h-3 w-3" />
+                          )}
                           {banco ? "banco" : "manual"}
                         </ClassicPill>
                       </td>
@@ -127,14 +151,18 @@ export function FinanceiroViewClassic() {
                         <div className="inline-flex gap-1.5">
                           <ClassicIconMini
                             onClick={() =>
-                              open("Editar lançamento", (close) => <LancamentoModal receita={l} onClose={close} />)
+                              open("Editar lançamento", (close) => (
+                                <LancamentoModal receita={l} onClose={close} />
+                              ))
                             }
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </ClassicIconMini>
                           <ClassicIconMini
                             onClick={async () => {
-                              if (await confirm({ title: "Excluir este lançamento?", danger: true })) {
+                              if (
+                                await confirm({ title: "Excluir este lançamento?", danger: true })
+                              ) {
                                 await remove("receitas", l.id);
                                 await log(`<b>Lançamento</b> — ${l.desc} excluído`, "financeiro");
                                 dmgToast.success("Lançamento excluído");
@@ -158,7 +186,8 @@ export function FinanceiroViewClassic() {
 }
 
 function FinKpi({ label, value, tone }: { label: string; value: string; tone?: "ok" | "bad" }) {
-  const toneCls = tone === "ok" ? "text-emerald-300" : tone === "bad" ? "text-dmg-red" : "text-dmg-text";
+  const toneCls =
+    tone === "ok" ? "text-emerald-300" : tone === "bad" ? "text-dmg-red" : "text-dmg-text";
   return (
     <ClassicPanel className="min-h-[110px]">
       <p className="text-xs font-medium uppercase tracking-[0.18em] text-dmg-text-3">{label}</p>

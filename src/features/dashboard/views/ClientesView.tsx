@@ -86,14 +86,20 @@ export function ClientesView() {
                 </div>
                 <div className="absolute top-2 right-2 flex gap-0.5">
                   <button
-                    onClick={() => open("Editar cliente", (close) => <ClienteModal cliente={c} onClose={close} />)}
+                    onClick={() =>
+                      open("Editar cliente", (close) => (
+                        <ClienteModal cliente={c} onClose={close} />
+                      ))
+                    }
                     className="rounded p-1 text-dmg-text-3 hover:text-dmg-text"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
                     onClick={async () => {
-                      if (await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })) {
+                      if (
+                        await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })
+                      ) {
                         await remove("clientes", c.id);
                         await log(`<b>Cliente</b> — ${c.nome} removido`, "cliente");
                         dmgToast.success("Cliente removido");

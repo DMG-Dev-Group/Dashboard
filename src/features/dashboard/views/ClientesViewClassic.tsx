@@ -7,7 +7,12 @@ import { projetosDoCliente } from "@/lib/store/relations";
 import { calcularIdade } from "@/lib/format";
 import { dmgToast } from "@/lib/toast";
 import { Building2, Instagram, Pencil, Plus, Trash2 } from "lucide-react";
-import { ClassicButtonSm, ClassicEmpty, ClassicIconMini, ClassicPanel } from "../components/classic/ClassicUI";
+import {
+  ClassicButtonSm,
+  ClassicEmpty,
+  ClassicIconMini,
+  ClassicPanel,
+} from "../components/classic/ClassicUI";
 
 export function ClientesViewClassic() {
   const { clientes, projetos, remove, log } = useStore();
@@ -19,7 +24,9 @@ export function ClientesViewClassic() {
       title="Base de clientes"
       sub="carteira ativa da DMG"
       action={
-        <ClassicButtonSm onClick={() => open("Novo cliente", (close) => <ClienteModal onClose={close} />)}>
+        <ClassicButtonSm
+          onClick={() => open("Novo cliente", (close) => <ClienteModal onClose={close} />)}
+        >
           <Plus className="h-3.5 w-3.5" /> novo cliente
         </ClassicButtonSm>
       }
@@ -81,12 +88,20 @@ export function ClientesViewClassic() {
                   )}
                 </div>
                 <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100">
-                  <ClassicIconMini onClick={() => open("Editar cliente", (close) => <ClienteModal cliente={c} onClose={close} />)}>
+                  <ClassicIconMini
+                    onClick={() =>
+                      open("Editar cliente", (close) => (
+                        <ClienteModal cliente={c} onClose={close} />
+                      ))
+                    }
+                  >
                     <Pencil className="h-3.5 w-3.5" />
                   </ClassicIconMini>
                   <ClassicIconMini
                     onClick={async () => {
-                      if (await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })) {
+                      if (
+                        await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })
+                      ) {
                         await remove("clientes", c.id);
                         await log(`<b>Cliente</b> — ${c.nome} removido`, "cliente");
                         dmgToast.success("Cliente removido");

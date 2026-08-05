@@ -23,9 +23,7 @@ export function ProjetosView() {
         sub="clique num projeto para abrir os detalhes"
         action={
           <button
-            onClick={() =>
-              open("Novo projeto", (close) => <ProjetoModal onClose={close} />)
-            }
+            onClick={() => open("Novo projeto", (close) => <ProjetoModal onClose={close} />)}
             className="inline-flex items-center gap-1.5 rounded border border-dmg-border-strong bg-dmg-surface-2 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-2 hover:border-dmg-red-dark hover:text-dmg-text"
           >
             <Plus className="h-3.5 w-3.5" /> novo projeto
@@ -96,7 +94,9 @@ export function ProjetosView() {
                       </button>
                       <button
                         onClick={async () => {
-                          if (await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true })) {
+                          if (
+                            await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true })
+                          ) {
                             await remove("projetos", p.id);
                             await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
                             dmgToast.success("Projeto excluído");

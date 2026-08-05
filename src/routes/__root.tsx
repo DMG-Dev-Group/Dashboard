@@ -76,7 +76,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "DMG — Damage Group" },
       {
         name: "description",
-        content: "Damage Group — força, inovação e liderança tecnológica. Desenvolvimento web, mobile e cloud sob medida.",
+        content:
+          "Damage Group — força, inovação e liderança tecnológica. Desenvolvimento web, mobile e cloud sob medida.",
       },
       { property: "og:title", content: "DMG — Damage Group" },
       {

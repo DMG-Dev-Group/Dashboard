@@ -20,7 +20,9 @@ export function FinanceiroView() {
   const [filtroOrigem, setFiltroOrigem] = useState<FiltroOrigem>("todos");
   const k = mesKey(isoDay(new Date()));
   const doMes = receitas.filter((l) => mesKey(l.data) === k);
-  const entradas = doMes.filter((l) => l.tipo === "entrada").reduce((s, l) => s + Number(l.valor), 0);
+  const entradas = doMes
+    .filter((l) => l.tipo === "entrada")
+    .reduce((s, l) => s + Number(l.valor), 0);
   const saidas = doMes.filter((l) => l.tipo === "saida").reduce((s, l) => s + Number(l.valor), 0);
 
   const filtrada = receitas.filter((l) => {
@@ -28,7 +30,10 @@ export function FinanceiroView() {
     if (filtroOrigem === "banco") return receitaVeioDoBanco(l);
     return true;
   });
-  const lista = filtrada.slice().sort((a, b) => b.data.localeCompare(a.data)).slice(0, 25);
+  const lista = filtrada
+    .slice()
+    .sort((a, b) => b.data.localeCompare(a.data))
+    .slice(0, 25);
 
   return (
     <div className="space-y-6">
@@ -65,7 +70,9 @@ export function FinanceiroView() {
           }
         />
         {lista.length === 0 ? (
-          <p className="font-mono text-sm text-dmg-text-3">Nenhum lançamento — registre a primeira entrada.</p>
+          <p className="font-mono text-sm text-dmg-text-3">
+            Nenhum lançamento — registre a primeira entrada.
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -110,7 +117,11 @@ export function FinanceiroView() {
                               : "border-dmg-border-strong bg-dmg-surface-2 text-dmg-text-2"
                           }`}
                         >
-                          {banco ? <Building2 className="h-3 w-3" /> : <UserPen className="h-3 w-3" />}
+                          {banco ? (
+                            <Building2 className="h-3 w-3" />
+                          ) : (
+                            <UserPen className="h-3 w-3" />
+                          )}
                           {banco ? "banco" : "manual"}
                         </span>
                       </td>
@@ -152,7 +163,9 @@ export function FinanceiroView() {
                           </button>
                           <button
                             onClick={async () => {
-                              if (await confirm({ title: "Excluir este lançamento?", danger: true })) {
+                              if (
+                                await confirm({ title: "Excluir este lançamento?", danger: true })
+                              ) {
                                 await remove("receitas", l.id);
                                 await log(`<b>Lançamento</b> — ${l.desc} excluído`, "financeiro");
                                 dmgToast.success("Lançamento excluído");
