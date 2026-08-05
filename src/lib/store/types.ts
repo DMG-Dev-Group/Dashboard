@@ -1,9 +1,21 @@
 export type ProjectStatus = "producao" | "dev" | "plan" | "done";
 
+export type Prioridade = "urgente" | "alta" | "media" | "baixa";
+
+export const PRIORIDADES: Record<Prioridade, { label: string; cls: string; bar: string }> = {
+  urgente: { label: "Urgente", cls: "text-red-400", bar: "bg-red-500" },
+  alta: { label: "Alta", cls: "text-amber-400", bar: "bg-amber-500" },
+  media: { label: "Média", cls: "text-sky-400", bar: "bg-sky-500" },
+  baixa: { label: "Baixa", cls: "text-dmg-text-3", bar: "bg-dmg-text-3" },
+};
+
 export interface Todo {
   texto: string;
   feito: boolean;
   criadoEm?: number;
+  prioridade?: Prioridade;
+  /** data URL (imagem comprimida) — anexo mostrado abaixo do título da tarefa */
+  imagem?: string;
 }
 
 export interface Projeto {

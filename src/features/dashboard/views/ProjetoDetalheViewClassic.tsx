@@ -3,12 +3,12 @@ import { BRL, fmtDataBR } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
+import { TodoListClassic } from "../components/classic/TodoListClassic";
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useProjetoDetalhe, type RepoInfo } from "./useProjetoDetalhe";
 import {
   ClassicButtonSm,
   ClassicEmpty,
-  ClassicIconMini,
   ClassicPanel,
   ClassicPanelTitle,
   ClassicProgress,
@@ -35,11 +35,11 @@ export function ProjetoDetalheViewClassic() {
     descStatus,
     onDescChange,
     flushDesc,
-    novaTarefa,
-    setNovaTarefa,
     addTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    reorderTodos,
     repo,
     excluirProjeto,
   } = useProjetoDetalhe();
@@ -77,7 +77,12 @@ export function ProjetoDetalheViewClassic() {
             </span>
           </div>
           <div className="flex gap-2.5">
-            <ClassicButtonSm outline onClick={() => open("Editar projeto", (close) => <ProjetoModal projeto={p} onClose={close} />)}>
+            <ClassicButtonSm
+              outline
+              onClick={() =>
+                open("Editar projeto", (close) => <ProjetoModal projeto={p} onClose={close} />)
+              }
+            >
               <Pencil className="h-3.5 w-3.5" /> editar
             </ClassicButtonSm>
             <ClassicButtonSm danger onClick={excluirProjeto}>
@@ -89,7 +94,9 @@ export function ProjetoDetalheViewClassic() {
 
       <ClassicPanel>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-dmg-text-3">Progresso</span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-dmg-text-3">
+            Progresso
+          </span>
           <b className="tabular-nums text-dmg-text">{prog}%</b>
         </div>
         <div className="mt-2.5">
@@ -153,7 +160,9 @@ export function ProjetoDetalheViewClassic() {
               <LinkOut url={p.url} what="a URL" />
             </KV>
             <KV label="Valor contratado">
-              <b className="font-mono text-[13px] text-dmg-text">{p.valor ? BRL(Number(p.valor)) : "—"}</b>
+              <b className="font-mono text-[13px] text-dmg-text">
+                {p.valor ? BRL(Number(p.valor)) : "—"}
+              </b>
             </KV>
             <KV label="Faturado">
               <b className="font-mono text-[13px] text-emerald-300">{BRL(faturado)}</b>
@@ -183,54 +192,15 @@ export function ProjetoDetalheViewClassic() {
           />
         </ClassicPanel>
 
-        <ClassicPanel title="To-do" sub={`${feitas}/${todos.length} concluídas`}>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const t = novaTarefa;
-              setNovaTarefa("");
-              await addTodo(t);
-            }}
-            className="mb-3.5 flex gap-2"
-          >
-            <input
-              value={novaTarefa}
-              onChange={(e) => setNovaTarefa(e.target.value)}
-              placeholder="nova tarefa..."
-              className="flex-1 rounded-lg border border-white/10 bg-black/28 px-3 py-2.5 text-[13px] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
-            />
-            <ClassicButtonSm type="submit">+ add</ClassicButtonSm>
-          </form>
-          {todos.length === 0 ? (
-            <ClassicEmpty>Nenhuma tarefa.</ClassicEmpty>
-          ) : (
-            <ul className="flex flex-col gap-0.5">
-              {todos.map((t, i) => (
-                <li
-                  key={i}
-                  className={`group/todo flex items-center gap-2.5 border-b border-white/5 py-2.5 last:border-none ${
-                    t.feito ? "opacity-60" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={t.feito}
-                    onChange={(e) => toggleTodo(i, e.target.checked)}
-                    className="h-4 w-4 shrink-0 accent-dmg-red-solid"
-                  />
-                  <span className={`flex-1 text-[13.5px] leading-snug ${t.feito ? "text-dmg-text-3 line-through" : "text-dmg-text"}`}>
-                    {t.texto}
-                  </span>
-                  <ClassicIconMini
-                    className="opacity-0 group-hover/todo:opacity-100"
-                    onClick={() => removeTodo(i)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </ClassicIconMini>
-                </li>
-              ))}
-            </ul>
-          )}
+        <ClassicPanel title="To-do">
+          <TodoListClassic
+            todos={todos}
+            onAdd={addTodo}
+            onToggle={toggleTodo}
+            onRemove={removeTodo}
+            onUpdate={updateTodo}
+            onReorder={reorderTodos}
+          />
         </ClassicPanel>
       </div>
 
@@ -267,7 +237,9 @@ export function ProjetoDetalheViewClassic() {
               ) : (
                 lanc.map((l) => (
                   <tr key={l.id}>
-                    <td className="border-b border-white/8 px-5 py-3 text-sm text-dmg-text-2">{l.desc}</td>
+                    <td className="border-b border-white/8 px-5 py-3 text-sm text-dmg-text-2">
+                      {l.desc}
+                    </td>
                     <td className="border-b border-white/8 px-5 py-3 font-mono text-xs text-dmg-text-3">
                       {fmtDataBR(l.data)}
                     </td>
@@ -344,7 +316,9 @@ function RepoCard({ data }: { data: RepoInfo }) {
           abrir no GitHub <ExternalLink className="h-3 w-3" />
         </a>
       </div>
-      {repoInfo.description && <p className="text-[13px] text-dmg-text-2">{repoInfo.description}</p>}
+      {repoInfo.description && (
+        <p className="text-[13px] text-dmg-text-2">{repoInfo.description}</p>
+      )}
       <div className="flex flex-wrap gap-4 text-[13px] text-dmg-text-3">
         <span>
           branch <b className="font-semibold text-dmg-text">{repoInfo.default_branch}</b>
@@ -362,10 +336,16 @@ function RepoCard({ data }: { data: RepoInfo }) {
       {ultimoCommit && (
         <div className="flex items-start gap-3 rounded-[10px] border border-white/10 bg-white/[.03] p-3.5">
           {ultimoCommit.author?.avatar_url && (
-            <img src={ultimoCommit.author.avatar_url} alt="" className="h-8 w-8 shrink-0 rounded-full" />
+            <img
+              src={ultimoCommit.author.avatar_url}
+              alt=""
+              className="h-8 w-8 shrink-0 rounded-full"
+            />
           )}
           <div className="text-[13px]">
-            <div className="text-dmg-text">{(ultimoCommit.commit.message || "").split("\n")[0]}</div>
+            <div className="text-dmg-text">
+              {(ultimoCommit.commit.message || "").split("\n")[0]}
+            </div>
             <div className="mt-0.5 font-mono text-[11px] text-dmg-text-3">
               {ultimoCommit.commit.author.name} ·{" "}
               {new Date(ultimoCommit.commit.author.date).toLocaleString("pt-BR", {
@@ -375,7 +355,12 @@ function RepoCard({ data }: { data: RepoInfo }) {
                 minute: "2-digit",
               })}{" "}
               · <span>{atualizado}</span> ·{" "}
-              <a href={ultimoCommit.html_url} target="_blank" rel="noopener" className="text-dmg-red hover:underline">
+              <a
+                href={ultimoCommit.html_url}
+                target="_blank"
+                rel="noopener"
+                className="text-dmg-red hover:underline"
+              >
                 {ultimoCommit.sha.slice(0, 7)}
               </a>
             </div>

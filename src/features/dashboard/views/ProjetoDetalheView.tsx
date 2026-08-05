@@ -6,6 +6,7 @@ import { BRL, fmtDataBR } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
+import { TodoList } from "../components/TodoList";
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useProjetoDetalhe, type RepoInfo } from "./useProjetoDetalhe";
 
@@ -28,11 +29,11 @@ export function ProjetoDetalheView() {
     descStatus,
     onDescChange,
     flushDesc,
-    novaTarefa,
-    setNovaTarefa,
     addTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    reorderTodos,
     repo,
     excluirProjeto,
   } = useProjetoDetalhe();
@@ -123,7 +124,7 @@ export function ProjetoDetalheView() {
             value={desc}
             onChange={onDescChange}
             onBlur={flushDesc}
-            placeholder='Conte como o projeto foi construído — decisões técnicas, desafios, o que faria diferente...'
+            placeholder="Conte como o projeto foi construído — decisões técnicas, desafios, o que faria diferente..."
             minHeight={140}
           />
           <div className="mt-6 mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">
@@ -199,62 +200,15 @@ export function ProjetoDetalheView() {
         </Panel>
 
         <Panel>
-          <PanelTitle
-            title="To-do"
-            sub={`${feitas}/${todos.length} concluídas`}
+          <PanelTitle title="To-do" />
+          <TodoList
+            todos={todos}
+            onAdd={addTodo}
+            onToggle={toggleTodo}
+            onRemove={removeTodo}
+            onUpdate={updateTodo}
+            onReorder={reorderTodos}
           />
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const t = novaTarefa;
-              setNovaTarefa("");
-              await addTodo(t);
-            }}
-            className="mb-4 flex gap-2"
-          >
-            <input
-              value={novaTarefa}
-              onChange={(e) => setNovaTarefa(e.target.value)}
-              placeholder="nova tarefa..."
-              className="flex-1 rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red"
-            />
-            <button
-              type="submit"
-              className="rounded bg-dmg-red-solid px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white hover:bg-dmg-red-hover"
-            >
-              + add
-            </button>
-          </form>
-          {todos.length === 0 ? (
-            <p className="font-mono text-sm text-dmg-text-3">Nenhuma tarefa.</p>
-          ) : (
-            <ul className="space-y-2">
-              {todos.map((t, i) => (
-                <li
-                  key={i}
-                  className={`flex items-center gap-3 rounded border border-dmg-border bg-dmg-surface-2/50 px-3 py-2 ${
-                    t.feito ? "opacity-60" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={t.feito}
-                    onChange={(e) => toggleTodo(i, e.target.checked)}
-                    className="accent-dmg-red"
-                  />
-                  <span className={`flex-1 text-sm ${t.feito ? "line-through" : ""}`}>
-                    {t.texto}
-                  </span>
-                  <button
-                    onClick={() => removeTodo(i)}
-                    className="rounded p-1 text-dmg-text-3 hover:text-dmg-red"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
         </Panel>
       </div>
 
@@ -329,9 +283,7 @@ export function ProjetoDetalheView() {
 function KV({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-dmg-border/60 pb-2 last:border-none">
-      <dt className="font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">
-        {label}
-      </dt>
+      <dt className="font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">{label}</dt>
       <dd className="text-right">{children}</dd>
     </div>
   );
@@ -395,11 +347,7 @@ function RepoCard({ data }: { data: RepoInfo }) {
       {ultimoCommit && (
         <div className="mt-4 flex items-start gap-3 rounded border border-dmg-border bg-dmg-surface-2 p-3">
           {ultimoCommit.author?.avatar_url && (
-            <img
-              src={ultimoCommit.author.avatar_url}
-              alt=""
-              className="h-8 w-8 rounded-full"
-            />
+            <img src={ultimoCommit.author.avatar_url} alt="" className="h-8 w-8 rounded-full" />
           )}
           <div className="text-sm">
             <div className="font-semibold">

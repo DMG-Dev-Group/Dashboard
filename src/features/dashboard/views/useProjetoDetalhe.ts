@@ -4,6 +4,7 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { calcProgresso, clienteDoProjeto, lancamentosDoProjeto } from "@/lib/store/relations";
 import { useConfirm } from "../components/ConfirmProvider";
 import { dmgToast } from "@/lib/toast";
+import type { Todo } from "@/lib/store/types";
 
 export interface RepoInfo {
   repoInfo: any;
@@ -37,8 +38,11 @@ export function useProjetoDetalhe() {
   const [desc, setDesc] = useState(p?.desc ?? "");
   const [descStatus, setDescStatus] = useState("");
   const descTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [novaTarefa, setNovaTarefa] = useState("");
-  const [repo, setRepo] = useState<{ state: "idle" | "loading" | "ok" | "err"; data?: RepoInfo; msg?: string }>({
+  const [repo, setRepo] = useState<{
+    state: "idle" | "loading" | "ok" | "err";
+    data?: RepoInfo;
+    msg?: string;
+  }>({
     state: "idle",
   });
 
@@ -101,8 +105,13 @@ export function useProjetoDetalhe() {
     })();
   }, [p?.repo]);
 
-  const stack = (p?.stack || "").split(",").map((s) => s.trim()).filter(Boolean);
-  const faturado = lanc.filter((l) => l.tipo === "entrada").reduce((s, l) => s + Number(l.valor), 0);
+  const stack = (p?.stack || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const faturado = lanc
+    .filter((l) => l.tipo === "entrada")
+    .reduce((s, l) => s + Number(l.valor), 0);
   const gastos = lanc.filter((l) => l.tipo === "saida").reduce((s, l) => s + Number(l.valor), 0);
   const todos = Array.isArray(p?.todos) ? p!.todos : [];
   const feitas = todos.filter((t) => t.feito).length;
@@ -168,6 +177,17 @@ export function useProjetoDetalhe() {
     await update("projetos", p.id, { todos: t3, progresso: calcProgresso(t3) });
   }
 
+  async function updateTodo(index: number, patch: Partial<Todo>) {
+    if (!p) return;
+    const t4 = todos.map((x, idx) => (idx === index ? { ...x, ...patch } : x));
+    await update("projetos", p.id, { todos: t4, progresso: calcProgresso(t4) });
+  }
+
+  async function reorderTodos(next: Todo[]) {
+    if (!p) return;
+    await update("projetos", p.id, { todos: next, progresso: calcProgresso(next) });
+  }
+
   async function excluirProjeto() {
     if (!p) return;
     if (!(await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true }))) return;
@@ -195,11 +215,11 @@ export function useProjetoDetalhe() {
     descStatus,
     onDescChange,
     flushDesc,
-    novaTarefa,
-    setNovaTarefa,
     addTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    reorderTodos,
     repo,
     excluirProjeto,
   };
