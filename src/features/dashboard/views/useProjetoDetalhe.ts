@@ -34,6 +34,9 @@ export function useProjetoDetalhe() {
   const [notas, setNotas] = useState(p?.notas ?? "");
   const [notasStatus, setNotasStatus] = useState("");
   const notasTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [desc, setDesc] = useState(p?.desc ?? "");
+  const [descStatus, setDescStatus] = useState("");
+  const descTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [novaTarefa, setNovaTarefa] = useState("");
   const [repo, setRepo] = useState<{ state: "idle" | "loading" | "ok" | "err"; data?: RepoInfo; msg?: string }>({
     state: "idle",
@@ -41,6 +44,7 @@ export function useProjetoDetalhe() {
 
   useEffect(() => {
     if (p && p.notas !== undefined && p.notas !== notas) setNotas(p.notas);
+    if (p && p.desc !== undefined && p.desc !== desc) setDesc(p.desc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p?.id]);
 
@@ -125,6 +129,27 @@ export function useProjetoDetalhe() {
     saveNotas(notas);
   }
 
+  function onDescChange(texto: string) {
+    setDesc(texto);
+    setDescStatus("digitando…");
+    if (descTimer.current) clearTimeout(descTimer.current);
+    descTimer.current = setTimeout(() => saveDesc(texto), 800);
+  }
+
+  function saveDesc(texto: string) {
+    if (!p) return;
+    if (descTimer.current) clearTimeout(descTimer.current);
+    (async () => {
+      await update("projetos", p.id, { desc: texto });
+      setDescStatus("salvo ✓");
+      setTimeout(() => setDescStatus(""), 2000);
+    })();
+  }
+
+  function flushDesc() {
+    saveDesc(desc);
+  }
+
   async function addTodo(texto: string) {
     if (!p || !texto.trim()) return;
     const t = [...todos, { texto: texto.trim(), feito: false, criadoEm: Date.now() }];
@@ -166,6 +191,10 @@ export function useProjetoDetalhe() {
     notasStatus,
     onNotasChange,
     flushNotas,
+    desc,
+    descStatus,
+    onDescChange,
+    flushDesc,
     novaTarefa,
     setNovaTarefa,
     addTodo,

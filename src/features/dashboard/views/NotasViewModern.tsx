@@ -3,6 +3,7 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { nomeDoUsuario } from "@/lib/userProfile";
 import { Panel, PanelTitle } from "../components/Panel";
 import { useNotaBoard } from "../notas/useNotaBoard";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
 import { Trash2, Users, UserRound } from "lucide-react";
 
 /**
@@ -81,13 +82,11 @@ function BoardModern({
               </span>
             }
           />
-          <textarea
+          <MarkdownEditor
             value={b.texto}
-            onChange={(e) => b.setTexto(e.target.value)}
+            onChange={b.setTexto}
             onBlur={b.flush}
-            rows={12}
             placeholder="Ideias, lembretes, links, combinados…"
-            className="w-full resize-y rounded border border-dmg-border bg-dmg-surface-2 p-3 font-mono text-sm outline-none focus:border-dmg-red"
           />
         </Panel>
 

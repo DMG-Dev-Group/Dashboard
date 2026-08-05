@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { nomeDoUsuario } from "@/lib/userProfile";
 import { useNotaBoard } from "../notas/useNotaBoard";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
 import { Trash2, UserRound, Users } from "lucide-react";
 import {
   ClassicButtonSm,
@@ -78,13 +79,12 @@ function BoardClassic({
           sub="autosave"
           action={<span className="text-[11px] text-dmg-text-3">{b.status}</span>}
         >
-          <textarea
+          <MarkdownEditor
             value={b.texto}
-            onChange={(e) => b.setTexto(e.target.value)}
+            onChange={b.setTexto}
             onBlur={b.flush}
-            rows={12}
             placeholder="Ideias, lembretes, links, combinados…"
-            className="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
+            editorClassName="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
           />
         </ClassicPanel>
 

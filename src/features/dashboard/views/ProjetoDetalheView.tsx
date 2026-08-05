@@ -5,6 +5,7 @@ import { ProgressBar } from "../components/ProgressBar";
 import { BRL, fmtDataBR } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useProjetoDetalhe, type RepoInfo } from "./useProjetoDetalhe";
 
@@ -23,6 +24,10 @@ export function ProjetoDetalheView() {
     notasStatus,
     onNotasChange,
     flushNotas,
+    desc,
+    descStatus,
+    onDescChange,
+    flushDesc,
     novaTarefa,
     setNovaTarefa,
     addTodo,
@@ -105,14 +110,22 @@ export function ProjetoDetalheView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Panel>
-          <PanelTitle title="Como foi feito" />
-          {p.desc ? (
-            <p className="whitespace-pre-wrap text-sm leading-[1.7] text-dmg-text-2">{p.desc}</p>
-          ) : (
-            <p className="font-mono text-sm text-dmg-text-3">
-              Sem notas ainda — clique em "editar" e conte como o projeto foi construído.
-            </p>
-          )}
+          <PanelTitle
+            title="Como foi feito"
+            sub="clique e escreva — salva sozinho"
+            action={
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3">
+                {descStatus}
+              </span>
+            }
+          />
+          <MarkdownEditor
+            value={desc}
+            onChange={onDescChange}
+            onBlur={flushDesc}
+            placeholder='Conte como o projeto foi construído — decisões técnicas, desafios, o que faria diferente...'
+            minHeight={140}
+          />
           <div className="mt-6 mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">
             Stack utilizada
           </div>
@@ -177,13 +190,11 @@ export function ProjetoDetalheView() {
               </span>
             }
           />
-          <textarea
+          <MarkdownEditor
             value={notas}
-            onChange={(e) => onNotasChange(e.target.value)}
+            onChange={onNotasChange}
             onBlur={flushNotas}
-            rows={12}
             placeholder="Senhas de homologação, combinados com o cliente, pendências..."
-            className="w-full resize-y rounded border border-dmg-border bg-dmg-surface-2 p-3 font-mono text-sm outline-none focus:border-dmg-red"
           />
         </Panel>
 

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { BRL, fmtDataBR } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useProjetoDetalhe, type RepoInfo } from "./useProjetoDetalhe";
 import {
@@ -30,6 +31,10 @@ export function ProjetoDetalheViewClassic() {
     notasStatus,
     onNotasChange,
     flushNotas,
+    desc,
+    descStatus,
+    onDescChange,
+    flushDesc,
     novaTarefa,
     setNovaTarefa,
     addTodo,
@@ -98,14 +103,19 @@ export function ProjetoDetalheViewClassic() {
       </ClassicPanel>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <ClassicPanel title="Como foi feito">
-          {p.desc ? (
-            <p className="whitespace-pre-wrap text-sm leading-[1.8] text-dmg-text-2">{p.desc}</p>
-          ) : (
-            <p className="text-sm text-dmg-text-3">
-              Sem notas ainda — clique em "editar" e conte como o projeto foi construído.
-            </p>
-          )}
+        <ClassicPanel
+          title="Como foi feito"
+          sub="clique e escreva — salva sozinho"
+          action={<span className="text-[11px] text-dmg-text-3">{descStatus}</span>}
+        >
+          <MarkdownEditor
+            value={desc}
+            onChange={onDescChange}
+            onBlur={flushDesc}
+            placeholder="Conte como o projeto foi construído — decisões técnicas, desafios, o que faria diferente..."
+            minHeight={140}
+            editorClassName="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
+          />
           <div className="mb-3 mt-6 text-[11px] font-medium uppercase tracking-[0.18em] text-dmg-text-3">
             Stack utilizada
           </div>
@@ -164,13 +174,12 @@ export function ProjetoDetalheViewClassic() {
           sub="rascunho livre — salva sozinho"
           action={<span className="text-[11px] text-dmg-text-3">{notasStatus}</span>}
         >
-          <textarea
+          <MarkdownEditor
             value={notas}
-            onChange={(e) => onNotasChange(e.target.value)}
+            onChange={onNotasChange}
             onBlur={flushNotas}
-            rows={12}
             placeholder="Senhas de homologação, combinados com o cliente, pendências..."
-            className="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
+            editorClassName="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
           />
         </ClassicPanel>
 
