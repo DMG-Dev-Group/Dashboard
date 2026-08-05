@@ -173,15 +173,16 @@ export function ClassicButtonPrimary({
 export function ClassicButtonSm({
   className,
   danger,
+  outline,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { danger?: boolean }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { danger?: boolean; outline?: boolean }) {
   return (
     <button
       type="button"
       {...props}
       className={cn(
         "inline-flex h-[38px] items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold transition-all",
-        danger
+        danger || outline
           ? "border border-dmg-border bg-white/[.03] text-dmg-text-2 hover:border-dmg-red-dark hover:text-dmg-red"
           : "border border-dmg-red-dark bg-dmg-red-solid text-white shadow-[0_0_38px_rgba(192,24,26,.28)] hover:-translate-y-px hover:bg-dmg-red-hover",
         className,
@@ -237,10 +238,12 @@ export function ClassicActivityItem({
   icon,
   children,
   time,
+  timeTitle,
 }: {
   icon: ReactNode;
   children: ReactNode;
   time?: string;
+  timeTitle?: string;
 }) {
   return (
     <div className="flex gap-3.5">
@@ -249,7 +252,11 @@ export function ClassicActivityItem({
       </span>
       <div className="min-w-0 flex-1 rounded-2xl border border-dmg-border bg-white/[.035] p-3 text-[13.5px] leading-6 text-dmg-text-2 [&_b]:font-semibold [&_b]:text-dmg-text">
         {children}
-        {time && <span className="mt-2 block text-xs text-dmg-text-3">{time}</span>}
+        {time && (
+          <span className="mt-2 block text-xs text-dmg-text-3" title={timeTitle}>
+            {time}
+          </span>
+        )}
       </div>
     </div>
   );

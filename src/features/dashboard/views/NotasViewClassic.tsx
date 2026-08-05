@@ -1,15 +1,10 @@
-import { useState } from "react";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { nomeDoUsuario } from "@/lib/userProfile";
 import { useNotaBoard } from "../notas/useNotaBoard";
-import { Trash2, UserRound, Users } from "lucide-react";
-import {
-  ClassicButtonSm,
-  ClassicEmpty,
-  ClassicIconMini,
-  ClassicPanel,
-  ClassicPill,
-} from "../components/classic/ClassicUI";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
+import { TodoListClassic } from "../components/classic/TodoListClassic";
+import { UserRound, Users } from "lucide-react";
+import { ClassicPanel, ClassicPill } from "../components/classic/ClassicUI";
 
 /**
  * Notas & To-Do — visual clássico: mesmos glass panels do resto do painel do
@@ -54,8 +49,6 @@ function BoardClassic({
   sub: string;
 }) {
   const b = useNotaBoard(boardId);
-  const [nova, setNova] = useState("");
-  const feitas = b.todos.filter((t) => t.feito).length;
 
   return (
     <section>
@@ -78,68 +71,24 @@ function BoardClassic({
           sub="autosave"
           action={<span className="text-[11px] text-dmg-text-3">{b.status}</span>}
         >
-          <textarea
+          <MarkdownEditor
             value={b.texto}
-            onChange={(e) => b.setTexto(e.target.value)}
+            onChange={b.setTexto}
             onBlur={b.flush}
-            rows={12}
             placeholder="Ideias, lembretes, links, combinados…"
-            className="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
+            editorClassName="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
           />
         </ClassicPanel>
 
-        <ClassicPanel title="To-Do" sub={`${feitas}/${b.todos.length} concluídas`}>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const t = nova;
-              setNova("");
-              await b.addTodo(t);
-            }}
-            className="mb-3.5 flex gap-2"
-          >
-            <input
-              value={nova}
-              onChange={(e) => setNova(e.target.value)}
-              placeholder="nova tarefa…"
-              className="flex-1 rounded-lg border border-white/10 bg-black/28 px-3 py-2.5 text-[13px] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
-            />
-            <ClassicButtonSm type="submit">+ add</ClassicButtonSm>
-          </form>
-          {b.todos.length === 0 ? (
-            <ClassicEmpty>Nenhuma tarefa.</ClassicEmpty>
-          ) : (
-            <ul className="flex flex-col gap-0.5">
-              {b.todos.map((t, i) => (
-                <li
-                  key={i}
-                  className={`group/todo flex items-center gap-2.5 border-b border-white/5 py-2.5 last:border-none ${
-                    t.feito ? "opacity-60" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={t.feito}
-                    onChange={(e) => b.toggleTodo(i, e.target.checked)}
-                    className="h-4 w-4 shrink-0 accent-dmg-red-solid"
-                  />
-                  <span
-                    className={`flex-1 text-[13.5px] leading-snug ${
-                      t.feito ? "text-dmg-text-3 line-through" : "text-dmg-text"
-                    }`}
-                  >
-                    {t.texto}
-                  </span>
-                  <ClassicIconMini
-                    className="opacity-0 group-hover/todo:opacity-100"
-                    onClick={() => b.removeTodo(i)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </ClassicIconMini>
-                </li>
-              ))}
-            </ul>
-          )}
+        <ClassicPanel title="To-Do">
+          <TodoListClassic
+            todos={b.todos}
+            onAdd={b.addTodo}
+            onToggle={b.toggleTodo}
+            onRemove={b.removeTodo}
+            onUpdate={b.updateTodo}
+            onReorder={b.reorderTodos}
+          />
         </ClassicPanel>
       </div>
     </section>

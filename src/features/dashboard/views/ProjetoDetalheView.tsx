@@ -5,6 +5,8 @@ import { ProgressBar } from "../components/ProgressBar";
 import { BRL, fmtDataBR } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
+import { TodoList } from "../components/TodoList";
 import { ArrowLeft, ExternalLink, Pencil, Trash2 } from "lucide-react";
 import { useProjetoDetalhe, type RepoInfo } from "./useProjetoDetalhe";
 
@@ -23,11 +25,15 @@ export function ProjetoDetalheView() {
     notasStatus,
     onNotasChange,
     flushNotas,
-    novaTarefa,
-    setNovaTarefa,
+    desc,
+    descStatus,
+    onDescChange,
+    flushDesc,
     addTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    reorderTodos,
     repo,
     excluirProjeto,
   } = useProjetoDetalhe();
@@ -105,14 +111,22 @@ export function ProjetoDetalheView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Panel>
-          <PanelTitle title="Como foi feito" />
-          {p.desc ? (
-            <p className="whitespace-pre-wrap text-sm leading-[1.7] text-dmg-text-2">{p.desc}</p>
-          ) : (
-            <p className="font-mono text-sm text-dmg-text-3">
-              Sem notas ainda — clique em "editar" e conte como o projeto foi construído.
-            </p>
-          )}
+          <PanelTitle
+            title="Como foi feito"
+            sub="clique e escreva — salva sozinho"
+            action={
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3">
+                {descStatus}
+              </span>
+            }
+          />
+          <MarkdownEditor
+            value={desc}
+            onChange={onDescChange}
+            onBlur={flushDesc}
+            placeholder="Conte como o projeto foi construído — decisões técnicas, desafios, o que faria diferente..."
+            minHeight={140}
+          />
           <div className="mt-6 mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">
             Stack utilizada
           </div>
@@ -177,73 +191,24 @@ export function ProjetoDetalheView() {
               </span>
             }
           />
-          <textarea
+          <MarkdownEditor
             value={notas}
-            onChange={(e) => onNotasChange(e.target.value)}
+            onChange={onNotasChange}
             onBlur={flushNotas}
-            rows={12}
             placeholder="Senhas de homologação, combinados com o cliente, pendências..."
-            className="w-full resize-y rounded border border-dmg-border bg-dmg-surface-2 p-3 font-mono text-sm outline-none focus:border-dmg-red"
           />
         </Panel>
 
         <Panel>
-          <PanelTitle
-            title="To-do"
-            sub={`${feitas}/${todos.length} concluídas`}
+          <PanelTitle title="To-do" />
+          <TodoList
+            todos={todos}
+            onAdd={addTodo}
+            onToggle={toggleTodo}
+            onRemove={removeTodo}
+            onUpdate={updateTodo}
+            onReorder={reorderTodos}
           />
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const t = novaTarefa;
-              setNovaTarefa("");
-              await addTodo(t);
-            }}
-            className="mb-4 flex gap-2"
-          >
-            <input
-              value={novaTarefa}
-              onChange={(e) => setNovaTarefa(e.target.value)}
-              placeholder="nova tarefa..."
-              className="flex-1 rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red"
-            />
-            <button
-              type="submit"
-              className="rounded bg-dmg-red-solid px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white hover:bg-dmg-red-hover"
-            >
-              + add
-            </button>
-          </form>
-          {todos.length === 0 ? (
-            <p className="font-mono text-sm text-dmg-text-3">Nenhuma tarefa.</p>
-          ) : (
-            <ul className="space-y-2">
-              {todos.map((t, i) => (
-                <li
-                  key={i}
-                  className={`flex items-center gap-3 rounded border border-dmg-border bg-dmg-surface-2/50 px-3 py-2 ${
-                    t.feito ? "opacity-60" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={t.feito}
-                    onChange={(e) => toggleTodo(i, e.target.checked)}
-                    className="accent-dmg-red"
-                  />
-                  <span className={`flex-1 text-sm ${t.feito ? "line-through" : ""}`}>
-                    {t.texto}
-                  </span>
-                  <button
-                    onClick={() => removeTodo(i)}
-                    className="rounded p-1 text-dmg-text-3 hover:text-dmg-red"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
         </Panel>
       </div>
 
@@ -318,9 +283,7 @@ export function ProjetoDetalheView() {
 function KV({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-dmg-border/60 pb-2 last:border-none">
-      <dt className="font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">
-        {label}
-      </dt>
+      <dt className="font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-3">{label}</dt>
       <dd className="text-right">{children}</dd>
     </div>
   );
@@ -384,11 +347,7 @@ function RepoCard({ data }: { data: RepoInfo }) {
       {ultimoCommit && (
         <div className="mt-4 flex items-start gap-3 rounded border border-dmg-border bg-dmg-surface-2 p-3">
           {ultimoCommit.author?.avatar_url && (
-            <img
-              src={ultimoCommit.author.avatar_url}
-              alt=""
-              className="h-8 w-8 rounded-full"
-            />
+            <img src={ultimoCommit.author.avatar_url} alt="" className="h-8 w-8 rounded-full" />
           )}
           <div className="text-sm">
             <div className="font-semibold">

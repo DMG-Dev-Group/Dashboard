@@ -1,9 +1,10 @@
-import { useState } from "react";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { nomeDoUsuario } from "@/lib/userProfile";
 import { Panel, PanelTitle } from "../components/Panel";
 import { useNotaBoard } from "../notas/useNotaBoard";
-import { Trash2, Users, UserRound } from "lucide-react";
+import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
+import { TodoList } from "../components/TodoList";
+import { Users, UserRound } from "lucide-react";
 
 /**
  * Notas & To-Do — visual "moderno". Dois quadros: um geral (compartilhado com a
@@ -52,8 +53,6 @@ function BoardModern({
   sub: string;
 }) {
   const b = useNotaBoard(boardId);
-  const [nova, setNova] = useState("");
-  const feitas = b.todos.filter((t) => t.feito).length;
 
   return (
     <section>
@@ -81,70 +80,24 @@ function BoardModern({
               </span>
             }
           />
-          <textarea
+          <MarkdownEditor
             value={b.texto}
-            onChange={(e) => b.setTexto(e.target.value)}
+            onChange={b.setTexto}
             onBlur={b.flush}
-            rows={12}
             placeholder="Ideias, lembretes, links, combinados…"
-            className="w-full resize-y rounded border border-dmg-border bg-dmg-surface-2 p-3 font-mono text-sm outline-none focus:border-dmg-red"
           />
         </Panel>
 
         <Panel>
-          <PanelTitle title="To-Do" sub={`${feitas}/${b.todos.length} concluídas`} />
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const t = nova;
-              setNova("");
-              await b.addTodo(t);
-            }}
-            className="mb-4 flex gap-2"
-          >
-            <input
-              value={nova}
-              onChange={(e) => setNova(e.target.value)}
-              placeholder="nova tarefa…"
-              className="flex-1 rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red"
-            />
-            <button
-              type="submit"
-              className="rounded bg-dmg-red-solid px-3 py-2 font-mono text-[11px] uppercase tracking-[0.14em] text-white hover:bg-dmg-red-hover"
-            >
-              + add
-            </button>
-          </form>
-          {b.todos.length === 0 ? (
-            <p className="font-mono text-sm text-dmg-text-3">Nenhuma tarefa.</p>
-          ) : (
-            <ul className="space-y-2">
-              {b.todos.map((t, i) => (
-                <li
-                  key={i}
-                  className={`flex items-center gap-3 rounded border border-dmg-border bg-dmg-surface-2/50 px-3 py-2 ${
-                    t.feito ? "opacity-60" : ""
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={t.feito}
-                    onChange={(e) => b.toggleTodo(i, e.target.checked)}
-                    className="accent-dmg-red"
-                  />
-                  <span className={`flex-1 text-sm ${t.feito ? "line-through" : ""}`}>
-                    {t.texto}
-                  </span>
-                  <button
-                    onClick={() => b.removeTodo(i)}
-                    className="rounded p-1 text-dmg-text-3 hover:text-dmg-red"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+          <PanelTitle title="To-Do" />
+          <TodoList
+            todos={b.todos}
+            onAdd={b.addTodo}
+            onToggle={b.toggleTodo}
+            onRemove={b.removeTodo}
+            onUpdate={b.updateTodo}
+            onReorder={b.reorderTodos}
+          />
         </Panel>
       </div>
     </section>

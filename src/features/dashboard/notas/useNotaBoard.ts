@@ -22,6 +22,8 @@ export interface NotaBoard {
   addTodo: (texto: string) => Promise<void>;
   toggleTodo: (index: number, feito: boolean) => Promise<void>;
   removeTodo: (index: number) => Promise<void>;
+  updateTodo: (index: number, patch: Partial<Todo>) => Promise<void>;
+  reorderTodos: (next: Todo[]) => Promise<void>;
 }
 
 const COL = "notas";
@@ -120,5 +122,28 @@ export function useNotaBoard(id: string): NotaBoard {
     await persist({ todos: novo });
   }
 
-  return { ready, texto, todos, status, setTexto, flush, addTodo, toggleTodo, removeTodo };
+  async function updateTodo(index: number, patch: Partial<Todo>) {
+    const novo = todos.map((t, i) => (i === index ? { ...t, ...patch } : t));
+    setTodos(novo);
+    await persist({ todos: novo });
+  }
+
+  async function reorderTodos(next: Todo[]) {
+    setTodos(next);
+    await persist({ todos: next });
+  }
+
+  return {
+    ready,
+    texto,
+    todos,
+    status,
+    setTexto,
+    flush,
+    addTodo,
+    toggleTodo,
+    removeTodo,
+    updateTodo,
+    reorderTodos,
+  };
 }

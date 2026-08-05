@@ -139,12 +139,16 @@ export function Input({
   type = "text",
   placeholder,
   required,
+  disabled,
+  list,
 }: {
   value: string;
   onChange: (v: string) => void;
   type?: string;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
+  list?: string;
 }) {
   return (
     <input
@@ -153,7 +157,9 @@ export function Input({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       required={required}
-      className="w-full rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red"
+      disabled={disabled}
+      list={list}
+      className="w-full rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red disabled:cursor-not-allowed disabled:opacity-50"
     />
   );
 }
@@ -162,16 +168,19 @@ export function Select({
   value,
   onChange,
   children,
+  disabled,
 }: {
   value: string;
   onChange: (v: string) => void;
   children: ReactNode;
+  disabled?: boolean;
 }) {
   return (
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red"
+      disabled={disabled}
+      className="w-full rounded border border-dmg-border bg-dmg-surface-2 px-3 py-2 text-sm outline-none focus:border-dmg-red disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
     </select>

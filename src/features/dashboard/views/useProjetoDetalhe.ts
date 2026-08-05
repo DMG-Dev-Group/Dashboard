@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useStore } from "@/lib/store/StoreProvider";
 import { calcProgresso, clienteDoProjeto, lancamentosDoProjeto } from "@/lib/store/relations";
+import { useConfirm } from "../components/ConfirmProvider";
+import { dmgToast } from "@/lib/toast";
+import type { Todo } from "@/lib/store/types";
 
 export interface RepoInfo {
   repoInfo: any;
@@ -26,18 +29,26 @@ export function useProjetoDetalhe() {
   const { id } = useParams({ from: "/_auth/projetos/$id" });
   const navigate = useNavigate();
   const { projetos, clientes, receitas, update, remove, log } = useStore();
+  const confirm = useConfirm();
   const p = projetos.find((x) => x.id === id);
 
   const [notas, setNotas] = useState(p?.notas ?? "");
   const [notasStatus, setNotasStatus] = useState("");
   const notasTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [novaTarefa, setNovaTarefa] = useState("");
-  const [repo, setRepo] = useState<{ state: "idle" | "loading" | "ok" | "err"; data?: RepoInfo; msg?: string }>({
+  const [desc, setDesc] = useState(p?.desc ?? "");
+  const [descStatus, setDescStatus] = useState("");
+  const descTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [repo, setRepo] = useState<{
+    state: "idle" | "loading" | "ok" | "err";
+    data?: RepoInfo;
+    msg?: string;
+  }>({
     state: "idle",
   });
 
   useEffect(() => {
     if (p && p.notas !== undefined && p.notas !== notas) setNotas(p.notas);
+    if (p && p.desc !== undefined && p.desc !== desc) setDesc(p.desc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p?.id]);
 
@@ -94,8 +105,13 @@ export function useProjetoDetalhe() {
     })();
   }, [p?.repo]);
 
-  const stack = (p?.stack || "").split(",").map((s) => s.trim()).filter(Boolean);
-  const faturado = lanc.filter((l) => l.tipo === "entrada").reduce((s, l) => s + Number(l.valor), 0);
+  const stack = (p?.stack || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const faturado = lanc
+    .filter((l) => l.tipo === "entrada")
+    .reduce((s, l) => s + Number(l.valor), 0);
   const gastos = lanc.filter((l) => l.tipo === "saida").reduce((s, l) => s + Number(l.valor), 0);
   const todos = Array.isArray(p?.todos) ? p!.todos : [];
   const feitas = todos.filter((t) => t.feito).length;
@@ -122,6 +138,27 @@ export function useProjetoDetalhe() {
     saveNotas(notas);
   }
 
+  function onDescChange(texto: string) {
+    setDesc(texto);
+    setDescStatus("digitando…");
+    if (descTimer.current) clearTimeout(descTimer.current);
+    descTimer.current = setTimeout(() => saveDesc(texto), 800);
+  }
+
+  function saveDesc(texto: string) {
+    if (!p) return;
+    if (descTimer.current) clearTimeout(descTimer.current);
+    (async () => {
+      await update("projetos", p.id, { desc: texto });
+      setDescStatus("salvo ✓");
+      setTimeout(() => setDescStatus(""), 2000);
+    })();
+  }
+
+  function flushDesc() {
+    saveDesc(desc);
+  }
+
   async function addTodo(texto: string) {
     if (!p || !texto.trim()) return;
     const t = [...todos, { texto: texto.trim(), feito: false, criadoEm: Date.now() }];
@@ -140,11 +177,23 @@ export function useProjetoDetalhe() {
     await update("projetos", p.id, { todos: t3, progresso: calcProgresso(t3) });
   }
 
+  async function updateTodo(index: number, patch: Partial<Todo>) {
+    if (!p) return;
+    const t4 = todos.map((x, idx) => (idx === index ? { ...x, ...patch } : x));
+    await update("projetos", p.id, { todos: t4, progresso: calcProgresso(t4) });
+  }
+
+  async function reorderTodos(next: Todo[]) {
+    if (!p) return;
+    await update("projetos", p.id, { todos: next, progresso: calcProgresso(next) });
+  }
+
   async function excluirProjeto() {
     if (!p) return;
-    if (!confirm(`Excluir o projeto "${p.nome}"?`)) return;
+    if (!(await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true }))) return;
     await remove("projetos", p.id);
     await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
+    dmgToast.success("Projeto excluído");
     navigate({ to: "/projetos" });
   }
 
@@ -162,11 +211,15 @@ export function useProjetoDetalhe() {
     notasStatus,
     onNotasChange,
     flushNotas,
-    novaTarefa,
-    setNovaTarefa,
+    desc,
+    descStatus,
+    onDescChange,
+    flushDesc,
     addTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    reorderTodos,
     repo,
     excluirProjeto,
   };

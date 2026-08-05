@@ -3,7 +3,9 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { dmgToast } from "@/lib/toast";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import {
   ClassicAvatarDot,
@@ -19,13 +21,16 @@ import {
 export function ProjetosViewClassic() {
   const { projetos, remove, log } = useStore();
   const { open } = useModal();
+  const confirm = useConfirm();
 
   return (
     <ClassicPanel
       title="Todos os projetos"
       sub="clique num projeto para abrir os detalhes"
       action={
-        <ClassicButtonSm onClick={() => open("Novo projeto", (close) => <ProjetoModal onClose={close} />)}>
+        <ClassicButtonSm
+          onClick={() => open("Novo projeto", (close) => <ProjetoModal onClose={close} />)}
+        >
           <Plus className="h-3.5 w-3.5" /> novo projeto
         </ClassicButtonSm>
       }
@@ -77,16 +82,21 @@ export function ProjetosViewClassic() {
                     <div className="inline-flex gap-1.5">
                       <ClassicIconMini
                         onClick={() =>
-                          open("Editar projeto", (close) => <ProjetoModal projeto={p} onClose={close} />)
+                          open("Editar projeto", (close) => (
+                            <ProjetoModal projeto={p} onClose={close} />
+                          ))
                         }
                       >
                         <Pencil className="h-3.5 w-3.5" />
                       </ClassicIconMini>
                       <ClassicIconMini
                         onClick={async () => {
-                          if (confirm(`Excluir o projeto "${p.nome}"?`)) {
+                          if (
+                            await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true })
+                          ) {
                             await remove("projetos", p.id);
                             await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
+                            dmgToast.success("Projeto excluído");
                           }
                         }}
                       >
