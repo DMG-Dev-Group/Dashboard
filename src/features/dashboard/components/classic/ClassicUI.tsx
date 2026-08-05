@@ -238,10 +238,12 @@ export function ClassicActivityItem({
   icon,
   children,
   time,
+  timeTitle,
 }: {
   icon: ReactNode;
   children: ReactNode;
   time?: string;
+  timeTitle?: string;
 }) {
   return (
     <div className="flex gap-3.5">
@@ -250,7 +252,11 @@ export function ClassicActivityItem({
       </span>
       <div className="min-w-0 flex-1 rounded-2xl border border-dmg-border bg-white/[.035] p-3 text-[13.5px] leading-6 text-dmg-text-2 [&_b]:font-semibold [&_b]:text-dmg-text">
         {children}
-        {time && <span className="mt-2 block text-xs text-dmg-text-3">{time}</span>}
+        {time && (
+          <span className="mt-2 block text-xs text-dmg-text-3" title={timeTitle}>
+            {time}
+          </span>
+        )}
       </div>
     </div>
   );

@@ -21,6 +21,30 @@ export function tempoRelativo(ts: number): string {
   return `há ${Math.round(h / 24)}d`;
 }
 
+const UMA_SEMANA_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function fmtDataHoraCompleta(ts: number): string {
+  return new Date(ts).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/**
+ * Texto exibido para uma atividade: relativo ("há 5min") enquanto for recente,
+ * e vira data absoluta depois de uma semana — senão fica impossível saber a
+ * ordem real de coisas antigas. A data/hora completa sempre fica no tooltip.
+ */
+export function fmtAtividadeTexto(ts: number): string {
+  if (Date.now() - ts > UMA_SEMANA_MS) {
+    return new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+  }
+  return tempoRelativo(ts);
+}
+
 export function fmtDia(iso: string): string {
   return new Date(iso + "T12:00").toLocaleDateString("pt-BR", {
     weekday: "short",
