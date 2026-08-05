@@ -15,7 +15,12 @@ export class ImagemMuitoGrandeError extends Error {
   }
 }
 
-export function fileToCompressedDataUrl(file: File): Promise<string> {
+export function fileToCompressedDataUrl(
+  file: File,
+  opts?: { maxDimension?: number; quality?: number },
+): Promise<string> {
+  const maxDimension = opts?.maxDimension ?? MAX_DIMENSION;
+  const quality = opts?.quality ?? JPEG_QUALITY;
   return new Promise((resolve, reject) => {
     const img = new Image();
     const reader = new FileReader();
@@ -23,7 +28,7 @@ export function fileToCompressedDataUrl(file: File): Promise<string> {
     reader.onload = () => {
       img.onerror = () => reject(new Error("Arquivo não é uma imagem válida"));
       img.onload = () => {
-        const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
+        const scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
         const w = Math.round(img.width * scale);
         const h = Math.round(img.height * scale);
         const canvas = document.createElement("canvas");
@@ -35,7 +40,7 @@ export function fileToCompressedDataUrl(file: File): Promise<string> {
           return;
         }
         ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
         if (dataUrl.length > MAX_DATA_URL_BYTES) {
           reject(new ImagemMuitoGrandeError());
           return;

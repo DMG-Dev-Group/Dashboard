@@ -7,6 +7,7 @@ import { NotificationsBellModern } from "./NotificationsBellModern";
 import { useConfirm } from "../components/ConfirmProvider";
 import { useSidebarPrefs, sortByOrder } from "./useSidebarPrefs";
 import { useNavSummaries } from "./useNavSummaries";
+import { usePerfil } from "@/lib/store/perfil";
 import { useDragReorder } from "@/hooks/useDragReorder";
 import { useHoverCapable } from "@/hooks/useHoverCapable";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -24,6 +25,7 @@ export function ModernLayout({ children }: { children: ReactNode }) {
   const prefs = useSidebarPrefs(user?.uid);
   const summaries = useNavSummaries();
   const hoverCapaz = useHoverCapable();
+  const { perfil } = usePerfil(user?.uid);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const matches = useMatches();
   const currentView = deriveView(pathname);
@@ -124,9 +126,13 @@ export function ModernLayout({ children }: { children: ReactNode }) {
             if (user && (await confirm({ title: `Sair da conta de ${nome}?` }))) signOut();
           }}
           title={`${nome} (clique para sair)`}
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-dmg-border-strong bg-dmg-surface font-bold text-dmg-red hover:border-dmg-red-dark"
+          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-dmg-border-strong bg-dmg-surface font-bold text-dmg-red hover:border-dmg-red-dark"
         >
-          {iniciais}
+          {perfil.fotoUrl ? (
+            <img src={perfil.fotoUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            iniciais
+          )}
         </button>
       </header>
 

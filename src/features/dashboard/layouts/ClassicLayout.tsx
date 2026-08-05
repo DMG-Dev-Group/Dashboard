@@ -7,6 +7,7 @@ import { NotificationsBellClassic } from "./NotificationsBellClassic";
 import { useConfirm } from "../components/ConfirmProvider";
 import { useSidebarPrefs, sortByOrder } from "./useSidebarPrefs";
 import { useNavSummaries } from "./useNavSummaries";
+import { usePerfil } from "@/lib/store/perfil";
 import { useDragReorder } from "@/hooks/useDragReorder";
 import { useHoverCapable } from "@/hooks/useHoverCapable";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -34,6 +35,7 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
   const prefs = useSidebarPrefs(user?.uid);
   const summaries = useNavSummaries();
   const hoverCapaz = useHoverCapable();
+  const { perfil } = usePerfil(user?.uid);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const matches = useMatches();
   const currentView = deriveView(pathname);
@@ -228,9 +230,13 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
             if (user && (await confirm({ title: `Sair da conta de ${nome}?` }))) signOut();
           }}
           title={`${nome} (clique para sair)`}
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-dmg-red-dark/45 bg-dmg-red-solid/[.16] text-[13px] font-bold text-white shadow-[0_0_38px_rgba(192,24,26,.28)]"
+          className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full border border-dmg-red-dark/45 bg-dmg-red-solid/[.16] text-[13px] font-bold text-white shadow-[0_0_38px_rgba(192,24,26,.28)]"
         >
-          {iniciais}
+          {perfil.fotoUrl ? (
+            <img src={perfil.fotoUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            iniciais
+          )}
         </button>
       </header>
 
