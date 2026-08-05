@@ -85,6 +85,7 @@ function BoardModern({
             onChange={b.setTexto}
             onBlur={b.flush}
             placeholder="Ideias, lembretes, links, combinados…"
+            maxHeight={360}
           />
         </Panel>
 

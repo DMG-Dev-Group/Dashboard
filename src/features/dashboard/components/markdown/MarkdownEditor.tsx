@@ -1,7 +1,20 @@
-import { useLayoutEffect, useRef, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ClipboardEvent,
+  type DragEvent,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 import { getCaretOffset, getCaretRange, setCaretOffset } from "./caret";
 import { isChecklistLine, renderLine, toggleChecklistLine } from "./lineRenderer";
-import { extrairImagemDoClipboard, extrairImagensDoDrop, fileToCompressedDataUrl, ImagemMuitoGrandeError } from "@/lib/imageUpload";
+import {
+  extrairImagemDoClipboard,
+  extrairImagensDoDrop,
+  fileToCompressedDataUrl,
+  ImagemMuitoGrandeError,
+} from "@/lib/imageUpload";
 import { dmgToast } from "@/lib/toast";
 import { ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +25,7 @@ interface Props {
   onBlur?: () => void;
   placeholder?: string;
   minHeight?: number;
+  maxHeight?: number;
   className?: string;
   /** Sobrescreve o visual da caixa editável — pra encaixar no tema Modern ou Classic. */
   editorClassName?: string;
@@ -40,6 +54,7 @@ export function MarkdownEditor({
   onBlur,
   placeholder,
   minHeight = 220,
+  maxHeight,
   className,
   editorClassName,
   allowImages = true,
@@ -50,7 +65,10 @@ export function MarkdownEditor({
   const lastCaret = useRef<number>(value.length);
   const [focused, setFocused] = useState(false);
 
-  const html = value.split("\n").map((line, i) => renderLine(line, i)).join("\n");
+  const html = value
+    .split("\n")
+    .map((line, i) => renderLine(line, i))
+    .join("\n");
 
   useLayoutEffect(() => {
     const root = rootRef.current;
@@ -59,7 +77,6 @@ export function MarkdownEditor({
       setCaretOffset(root, pendingCaret.current);
       pendingCaret.current = null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   /** Início/fim da seleção atual — iguais quando é só um cursor. Sem isso,
@@ -179,13 +196,15 @@ export function MarkdownEditor({
           setFocused(false);
           onBlur?.();
         }}
-        style={{ minHeight, whiteSpace: "pre-wrap" }}
-        className={cn(editorClassName ?? DEFAULT_EDITOR_CLS)}
+        style={{ minHeight, maxHeight, whiteSpace: "pre-wrap" }}
+        className={cn(editorClassName ?? DEFAULT_EDITOR_CLS, "overflow-y-auto")}
         dangerouslySetInnerHTML={{ __html: html }}
       />
 
       {!value && !focused && (
-        <p className="pointer-events-none absolute left-3 top-3 font-mono text-sm text-dmg-text-3">{placeholder}</p>
+        <p className="pointer-events-none absolute left-3 top-3 font-mono text-sm text-dmg-text-3">
+          {placeholder}
+        </p>
       )}
 
       {allowImages && (
