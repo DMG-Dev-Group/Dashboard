@@ -5,7 +5,21 @@ import { useAuth } from "@/features/auth/AuthProvider";
 import { iniciaisDoUsuario, nomeDoUsuario } from "@/lib/userProfile";
 import { NotificationsBellClassic } from "./NotificationsBellClassic";
 import { useConfirm } from "../components/ConfirmProvider";
-import { Activity, Menu, Search, ShieldCheck } from "lucide-react";
+import { useSidebarPrefs, sortByOrder } from "./useSidebarPrefs";
+import { useNavSummaries } from "./useNavSummaries";
+import { useDragReorder } from "@/hooks/useDragReorder";
+import { useHoverCapable } from "@/hooks/useHoverCapable";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Activity,
+  Eye,
+  EyeOff,
+  GripVertical,
+  Menu,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+} from "lucide-react";
 
 /**
  * Painel "clássico" — sidebar 280px em vidro escuro, tile de marca serifado,
@@ -14,8 +28,12 @@ import { Activity, Menu, Search, ShieldCheck } from "lucide-react";
  */
 export function ClassicLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [personalizando, setPersonalizando] = useState(false);
   const { user, signOut } = useAuth();
   const confirm = useConfirm();
+  const prefs = useSidebarPrefs(user?.uid);
+  const summaries = useNavSummaries();
+  const hoverCapaz = useHoverCapable();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const matches = useMatches();
   const currentView = deriveView(pathname);
@@ -24,6 +42,14 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
   const nome = user ? nomeDoUsuario(user) : "";
   const iniciais = user ? iniciaisDoUsuario(nome) : "?";
   const isProjectDetail = matches.some((m) => m.routeId.includes("projetos/$id"));
+
+  const itensOrdenados = sortByOrder(NAV_ITEMS, prefs.order);
+  const itensVisiveis = personalizando
+    ? itensOrdenados
+    : itensOrdenados.filter((i) => !prefs.hidden.includes(i.id));
+  const { getDragProps, draggingIndex, overIndex } = useDragReorder(itensOrdenados, (next) =>
+    prefs.setOrder(next.map((i) => i.id)),
+  );
 
   return (
     <div className="layout-classic min-h-screen bg-dmg-bg text-dmg-text">
@@ -49,28 +75,106 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
           </span>
         </Link>
 
-        <ul className="flex-1 space-y-1 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
-            const active = matchNav(pathname, item.to);
-            return (
-              <li key={item.id}>
-                <Link
-                  to={item.to}
-                  onClick={() => setOpen(false)}
+        <TooltipProvider delayDuration={1000}>
+          <ul className="flex-1 space-y-1 overflow-y-auto">
+            {itensVisiveis.map((item) => {
+              const active = matchNav(pathname, item.to);
+              const isHidden = prefs.hidden.includes(item.id);
+              const summary = summaries[item.id];
+              const index = itensOrdenados.indexOf(item);
+
+              const content = (
+                <div
                   className={`flex h-[46px] items-center gap-3 rounded-2xl border px-4 text-sm font-medium transition-colors ${
                     active
                       ? "border-dmg-red-solid/35 bg-dmg-red-solid/15 text-white shadow-[0_0_38px_rgba(192,24,26,.28)]"
                       : "border-transparent text-white/60 hover:bg-white/[.035] hover:text-white"
+                  } ${isHidden ? "opacity-40" : ""} ${
+                    overIndex === index && draggingIndex !== null && draggingIndex !== index
+                      ? "ring-1 ring-dmg-red-solid"
+                      : ""
                   }`}
                 >
-                  <item.icon className={`h-4 w-4 shrink-0 ${active ? "text-dmg-red" : "text-white/45"}`} />
-                  <span className="truncate">{item.label}</span>
-                  {active && <span className="ml-auto text-dmg-red">›</span>}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  {personalizando && (
+                    <GripVertical className="h-4 w-4 shrink-0 cursor-grab text-white/40" />
+                  )}
+                  <item.icon
+                    className={`h-4 w-4 shrink-0 ${active ? "text-dmg-red" : "text-white/45"}`}
+                  />
+                  <span className="flex-1 truncate">{item.label}</span>
+                  {personalizando ? (
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        prefs.toggleHidden(item.id);
+                      }}
+                      className="shrink-0 rounded p-1 text-white/60 hover:text-white"
+                      title={isHidden ? "mostrar" : "ocultar"}
+                    >
+                      {isHidden ? (
+                        <EyeOff className="h-3.5 w-3.5" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  ) : (
+                    active && <span className="ml-auto text-dmg-red">›</span>
+                  )}
+                </div>
+              );
+
+              if (personalizando) {
+                return (
+                  <li key={item.id} {...getDragProps(index)}>
+                    {content}
+                  </li>
+                );
+              }
+
+              return (
+                <li key={item.id}>
+                  {hoverCapaz && summary ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link to={item.to} onClick={() => setOpen(false)}>
+                          {content}
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="border border-white/10 bg-black/90 text-white"
+                      >
+                        <p className="mb-0.5 text-[10px] font-medium uppercase tracking-[.14em] text-white/50">
+                          {item.label}
+                        </p>
+                        {summary.lines.map((l, i) => (
+                          <p key={i} className="text-xs">
+                            {l}
+                          </p>
+                        ))}
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Link to={item.to} onClick={() => setOpen(false)}>
+                      {content}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </TooltipProvider>
+
+        <button
+          onClick={() => setPersonalizando((p) => !p)}
+          className={`mb-3 flex items-center gap-2 rounded-xl px-3 py-2 text-[11px] font-medium uppercase tracking-[.1em] ${
+            personalizando ? "bg-dmg-red-solid/20 text-dmg-red" : "text-white/50 hover:text-white"
+          }`}
+        >
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          {personalizando ? "concluir personalização" : "personalizar menu"}
+        </button>
 
         <div className="rounded-2xl border border-dmg-red-solid/30 bg-dmg-red-solid/[.08] p-4 shadow-[0_0_38px_rgba(192,24,26,.28)]">
           <div className="mb-3.5 flex items-center justify-between">
@@ -158,10 +262,7 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
       </main>
 
       {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setOpen(false)}
-        />
+        <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />
       )}
     </div>
   );
