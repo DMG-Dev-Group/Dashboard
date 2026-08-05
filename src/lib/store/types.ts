@@ -30,6 +30,14 @@ export interface Cliente {
   desde?: string;
 }
 
+/**
+ * "manual" = digitado no painel. Qualquer outro valor (ex.: "banco", vindo da
+ * sincronização Pluggy) é tratado como vindo do banco. Lançamentos antigos
+ * sem `origem` são tratados como manuais (era o único jeito de lançar antes
+ * da integração bancária existir).
+ */
+export type ReceitaOrigem = "manual" | "banco" | (string & {});
+
 export interface Receita {
   id: string;
   desc: string;
@@ -38,7 +46,12 @@ export interface Receita {
   data: string; // ISO date
   projeto?: string;
   projetoId?: string;
-  origem?: string;
+  categoria?: string;
+  origem?: ReceitaOrigem;
+}
+
+export function receitaVeioDoBanco(r: Pick<Receita, "origem">): boolean {
+  return !!r.origem && r.origem !== "manual";
 }
 
 export interface Evento {

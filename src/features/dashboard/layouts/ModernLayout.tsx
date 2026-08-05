@@ -4,6 +4,7 @@ import { NAV_ITEMS, TITULOS, type ViewId } from "./navItems";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { iniciaisDoUsuario, nomeDoUsuario } from "@/lib/userProfile";
 import { NotificationsBellModern } from "./NotificationsBellModern";
+import { useConfirm } from "../components/ConfirmProvider";
 import logoUrl from "@/assets/logo.svg";
 import { Menu } from "lucide-react";
 
@@ -13,6 +14,7 @@ import { Menu } from "lucide-react";
 export function ModernLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const confirm = useConfirm();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const matches = useMatches();
   const currentView = deriveView(pathname);
@@ -103,8 +105,8 @@ export function ModernLayout({ children }: { children: ReactNode }) {
         </span>
         <NotificationsBellModern />
         <button
-          onClick={() => {
-            if (user && confirm(`Sair da conta de ${nome}?`)) signOut();
+          onClick={async () => {
+            if (user && (await confirm({ title: `Sair da conta de ${nome}?` }))) signOut();
           }}
           title={`${nome} (clique para sair)`}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-dmg-border-strong bg-dmg-surface font-bold text-dmg-red hover:border-dmg-red-dark"

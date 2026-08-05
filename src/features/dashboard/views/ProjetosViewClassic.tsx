@@ -3,7 +3,9 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { dmgToast } from "@/lib/toast";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import {
   ClassicAvatarDot,
@@ -19,6 +21,7 @@ import {
 export function ProjetosViewClassic() {
   const { projetos, remove, log } = useStore();
   const { open } = useModal();
+  const confirm = useConfirm();
 
   return (
     <ClassicPanel
@@ -84,9 +87,10 @@ export function ProjetosViewClassic() {
                       </ClassicIconMini>
                       <ClassicIconMini
                         onClick={async () => {
-                          if (confirm(`Excluir o projeto "${p.nome}"?`)) {
+                          if (await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true })) {
                             await remove("projetos", p.id);
                             await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
+                            dmgToast.success("Projeto excluído");
                           }
                         }}
                       >

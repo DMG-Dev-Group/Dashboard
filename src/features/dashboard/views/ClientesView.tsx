@@ -2,13 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
 import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
 import { ClienteModal } from "../modals/ClienteModal";
 import { projetosDoCliente } from "@/lib/store/relations";
+import { dmgToast } from "@/lib/toast";
 import { Plus, Trash2 } from "lucide-react";
 
 export function ClientesView() {
   const { clientes, projetos, remove, log } = useStore();
   const { open } = useModal();
+  const confirm = useConfirm();
 
   return (
     <Panel>
@@ -63,9 +66,10 @@ export function ClientesView() {
                 </div>
                 <button
                   onClick={async () => {
-                    if (confirm(`Remover o cliente "${c.nome}"?`)) {
+                    if (await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })) {
                       await remove("clientes", c.id);
                       await log(`<b>Cliente</b> — ${c.nome} removido`, "cliente");
+                      dmgToast.success("Cliente removido");
                     }
                   }}
                   className="absolute top-2 right-2 rounded p-1 text-dmg-text-3 hover:text-dmg-red"

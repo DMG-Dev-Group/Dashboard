@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useStore } from "@/lib/store/StoreProvider";
 import { calcProgresso, clienteDoProjeto, lancamentosDoProjeto } from "@/lib/store/relations";
+import { useConfirm } from "../components/ConfirmProvider";
+import { dmgToast } from "@/lib/toast";
 
 export interface RepoInfo {
   repoInfo: any;
@@ -26,6 +28,7 @@ export function useProjetoDetalhe() {
   const { id } = useParams({ from: "/_auth/projetos/$id" });
   const navigate = useNavigate();
   const { projetos, clientes, receitas, update, remove, log } = useStore();
+  const confirm = useConfirm();
   const p = projetos.find((x) => x.id === id);
 
   const [notas, setNotas] = useState(p?.notas ?? "");
@@ -142,9 +145,10 @@ export function useProjetoDetalhe() {
 
   async function excluirProjeto() {
     if (!p) return;
-    if (!confirm(`Excluir o projeto "${p.nome}"?`)) return;
+    if (!(await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true }))) return;
     await remove("projetos", p.id);
     await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
+    dmgToast.success("Projeto excluído");
     navigate({ to: "/projetos" });
   }
 

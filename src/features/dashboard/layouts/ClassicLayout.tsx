@@ -4,6 +4,7 @@ import { NAV_ITEMS, TITULOS, type ViewId } from "./navItems";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { iniciaisDoUsuario, nomeDoUsuario } from "@/lib/userProfile";
 import { NotificationsBellClassic } from "./NotificationsBellClassic";
+import { useConfirm } from "../components/ConfirmProvider";
 import { Activity, Menu, Search, ShieldCheck } from "lucide-react";
 
 /**
@@ -14,6 +15,7 @@ import { Activity, Menu, Search, ShieldCheck } from "lucide-react";
 export function ClassicLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const confirm = useConfirm();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const matches = useMatches();
   const currentView = deriveView(pathname);
@@ -118,8 +120,8 @@ export function ClassicLayout({ children }: { children: ReactNode }) {
         </div>
 
         <button
-          onClick={() => {
-            if (user && confirm(`Sair da conta de ${nome}?`)) signOut();
+          onClick={async () => {
+            if (user && (await confirm({ title: `Sair da conta de ${nome}?` }))) signOut();
           }}
           title={`${nome} (clique para sair)`}
           className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-dmg-red-dark/45 bg-dmg-red-solid/[.16] text-[13px] font-bold text-white shadow-[0_0_38px_rgba(192,24,26,.28)]"

@@ -6,12 +6,15 @@ import { ProgressBar } from "../components/ProgressBar";
 import { progressoDoProjeto } from "@/lib/store/relations";
 import { BRL } from "@/lib/format";
 import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { dmgToast } from "@/lib/toast";
 import { Pencil, Trash2, Plus } from "lucide-react";
 
 export function ProjetosView() {
   const { projetos, remove, log } = useStore();
   const { open } = useModal();
+  const confirm = useConfirm();
 
   return (
     <Panel>
@@ -93,9 +96,10 @@ export function ProjetosView() {
                       </button>
                       <button
                         onClick={async () => {
-                          if (confirm(`Excluir o projeto "${p.nome}"?`)) {
+                          if (await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true })) {
                             await remove("projetos", p.id);
                             await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
+                            dmgToast.success("Projeto excluído");
                           }
                         }}
                         className="rounded p-1.5 text-dmg-text-3 hover:bg-dmg-red/10 hover:text-dmg-red"

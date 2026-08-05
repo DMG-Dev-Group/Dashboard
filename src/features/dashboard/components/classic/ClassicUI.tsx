@@ -173,15 +173,16 @@ export function ClassicButtonPrimary({
 export function ClassicButtonSm({
   className,
   danger,
+  outline,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { danger?: boolean }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { danger?: boolean; outline?: boolean }) {
   return (
     <button
       type="button"
       {...props}
       className={cn(
         "inline-flex h-[38px] items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-4 text-[13px] font-semibold transition-all",
-        danger
+        danger || outline
           ? "border border-dmg-border bg-white/[.03] text-dmg-text-2 hover:border-dmg-red-dark hover:text-dmg-red"
           : "border border-dmg-red-dark bg-dmg-red-solid text-white shadow-[0_0_38px_rgba(192,24,26,.28)] hover:-translate-y-px hover:bg-dmg-red-hover",
         className,

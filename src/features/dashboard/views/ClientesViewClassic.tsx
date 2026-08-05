@@ -1,14 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store/StoreProvider";
 import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
 import { ClienteModal } from "../modals/ClienteModal";
 import { projetosDoCliente } from "@/lib/store/relations";
+import { dmgToast } from "@/lib/toast";
 import { Plus, Trash2 } from "lucide-react";
 import { ClassicButtonSm, ClassicEmpty, ClassicIconMini, ClassicPanel } from "../components/classic/ClassicUI";
 
 export function ClientesViewClassic() {
   const { clientes, projetos, remove, log } = useStore();
   const { open } = useModal();
+  const confirm = useConfirm();
 
   return (
     <ClassicPanel
@@ -56,9 +59,10 @@ export function ClientesViewClassic() {
                 <ClassicIconMini
                   className="absolute right-2 top-2 opacity-0 group-hover:opacity-100"
                   onClick={async () => {
-                    if (confirm(`Remover o cliente "${c.nome}"?`)) {
+                    if (await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })) {
                       await remove("clientes", c.id);
                       await log(`<b>Cliente</b> — ${c.nome} removido`, "cliente");
+                      dmgToast.success("Cliente removido");
                     }
                   }}
                 >
