@@ -77,6 +77,7 @@ function BoardClassic({
             onBlur={b.flush}
             placeholder="Ideias, lembretes, links, combinados…"
             editorClassName="w-full resize-y rounded-[10px] border border-white/10 bg-black/28 p-3.5 text-[13px] leading-[1.65] text-[#eaeaea] outline-none placeholder:text-white/26 focus:border-dmg-red-solid/55"
+            maxHeight={360}
           />
         </ClassicPanel>
 

@@ -1,4 +1,4 @@
-import { escapeHtml, renderInline, safeHref } from "./inlineTokens";
+import { escapeHtml, renderInline, safeImageSrc } from "./inlineTokens";
 
 const MARKER_CLS = "opacity-40 select-none";
 
@@ -31,7 +31,7 @@ export function renderLine(line: string, lineIndex: number): string {
 
   const image = line.match(IMAGE_RE);
   if (image) {
-    const src = safeHref(image[2]);
+    const src = safeImageSrc(image[2]);
     const img = src
       ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(image[1])}" contenteditable="false" draggable="false" class="max-h-64 rounded border border-dmg-border-strong object-contain" />`
       : "";
@@ -76,14 +76,18 @@ export function renderLine(line: string, lineIndex: number): string {
 
   const ordered = line.match(ORDERED_RE);
   if (ordered) {
-    return wrap(`<span class="text-dmg-text-3">${escapeHtml(ordered[1])}</span>${renderInline(ordered[2])}`);
+    return wrap(
+      `<span class="text-dmg-text-3">${escapeHtml(ordered[1])}</span>${renderInline(ordered[2])}`,
+    );
   }
 
   const list = line.match(LIST_RE);
   if (list) {
     // marcador fica como digitado (-/*) só estilizado — trocar o caractere
     // por "•" corromperia a fonte real (o texto renderizado é o dado).
-    return wrap(`<span class="${MARKER_CLS}">${escapeHtml(list[1])}</span>${renderInline(list[2])}`);
+    return wrap(
+      `<span class="${MARKER_CLS}">${escapeHtml(list[1])}</span>${renderInline(list[2])}`,
+    );
   }
 
   if (TABLE_RE.test(line)) {

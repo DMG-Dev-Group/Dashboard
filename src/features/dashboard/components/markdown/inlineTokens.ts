@@ -28,6 +28,19 @@ export function safeHref(url: string): string | null {
   return trimmed;
 }
 
+/**
+ * Como safeHref, mas pra `<img src>`: precisa permitir `data:image/*` porque
+ * é assim que colar/soltar imagem funciona (sem Storage configurado, a
+ * imagem vira data URL guardada direto no markdown). Ainda bloqueia
+ * `data:text/html` e outros esquemas perigosos.
+ */
+export function safeImageSrc(url: string): string | null {
+  const trimmed = url.trim();
+  if (/^data:image\//i.test(trimmed)) return trimmed;
+  if (/^(javascript|vbscript|data):/i.test(trimmed)) return null;
+  return trimmed;
+}
+
 const CODE_RE = /`([^`]+)`/;
 const LINK_RE = /\[([^\]]*)\]\(([^)]*)\)/;
 const BOLD_RE = /(\*\*|__)(.+?)\1/;
@@ -48,7 +61,9 @@ export function renderInline(text: string): string {
       re: LINK_RE,
       render: (m) => {
         const href = safeHref(m[2]);
-        const hrefAttr = href ? ` href="${escapeHtml(href)}" data-md-link="${escapeHtml(href)}"` : "";
+        const hrefAttr = href
+          ? ` href="${escapeHtml(href)}" data-md-link="${escapeHtml(href)}"`
+          : "";
         return `<a${hrefAttr} class="text-dmg-red underline decoration-dmg-red/40 underline-offset-2"><span class="${MARKER_CLS}">[</span>${renderInline(
           m[1],
         )}<span class="${MARKER_CLS}">](${escapeHtml(m[2])})</span></a>`;
