@@ -36,7 +36,11 @@ export function renderLine(line: string, lineIndex: number): string {
       ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(image[1])}" contenteditable="false" draggable="false" class="max-h-64 rounded border border-dmg-border-strong object-contain" />`
       : "";
     return wrap(
-      `<span class="mb-1 block font-mono text-[0.85em] opacity-40 select-none">${escapeHtml(line)}</span>${img}`,
+      // truncate: só corta a exibição (CSS) — o textContent real continua com
+      // a linha inteira, que é o que caret.ts usa pra calcular offset. Sem
+      // isso, o data: URL inteiro (dezenas de milhares de caracteres) quebra
+      // em milhares de linhas visuais e empurra a <img> pra bem fora da tela.
+      `<span class="mb-1 block truncate font-mono text-[0.85em] opacity-40 select-none">${escapeHtml(line)}</span>${img}`,
       ` class="inline-block w-full align-top"`,
     );
   }
