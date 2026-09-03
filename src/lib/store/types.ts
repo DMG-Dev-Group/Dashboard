@@ -121,6 +121,8 @@ export interface Lead {
   modulos?: LeadItem[];
   multiplicadores?: LeadItem[];
   criadoEm: number;
+  /** true = escondido do sino de notificações (não apaga o lead nem o card da tela Leads). */
+  lida?: boolean;
 }
 
 export interface Collections {

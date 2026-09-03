@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bell, CalendarDays } from "lucide-react";
+import { Bell, CalendarDays, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNotificacoes } from "../notificacoes/useNotificacoes";
 
 export function NotificationsBellModern() {
   const [open, setOpen] = useState(false);
-  const { items } = useNotificacoes();
+  const { items, dismissLead } = useNotificacoes();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -43,11 +43,11 @@ export function NotificationsBellModern() {
           ) : (
             <ul className="divide-y divide-dmg-border">
               {items.map((n) => (
-                <li key={n.id}>
+                <li key={n.id} className="group relative">
                   <Link
                     to={n.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-start gap-3 px-4 py-3 hover:bg-dmg-surface-3"
+                    className="flex items-start gap-3 px-4 py-3 pr-9 hover:bg-dmg-surface-3"
                   >
                     <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-dmg-border-strong bg-dmg-surface text-dmg-red">
                       <CalendarDays className="h-3.5 w-3.5" />
@@ -59,6 +59,16 @@ export function NotificationsBellModern() {
                       </span>
                     </span>
                   </Link>
+                  {n.tipo === "lead" && (
+                    <button
+                      type="button"
+                      title="Esconder essa notificação"
+                      onClick={() => dismissLead(n.id)}
+                      className="absolute right-3 top-3 rounded-full p-1 text-dmg-text-3 opacity-0 hover:bg-dmg-surface hover:text-dmg-text group-hover:opacity-100"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

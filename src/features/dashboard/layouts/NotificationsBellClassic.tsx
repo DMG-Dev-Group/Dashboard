@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Bell, CalendarDays } from "lucide-react";
+import { Bell, CalendarDays, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNotificacoes } from "../notificacoes/useNotificacoes";
 import { ClassicPill } from "../components/classic/ClassicUI";
 
 export function NotificationsBellClassic() {
   const [open, setOpen] = useState(false);
-  const { items } = useNotificacoes();
+  const { items, dismissLead } = useNotificacoes();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -40,11 +40,11 @@ export function NotificationsBellClassic() {
           ) : (
             <ul className="divide-y divide-white/8">
               {items.map((n) => (
-                <li key={n.id}>
+                <li key={n.id} className="group relative">
                   <Link
                     to={n.href}
                     onClick={() => setOpen(false)}
-                    className="flex items-start gap-3 px-4 py-3 hover:bg-white/[.04]"
+                    className="flex items-start gap-3 px-4 py-3 pr-9 hover:bg-white/[.04]"
                   >
                     <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-dmg-red-dark bg-dmg-red-solid/[.12] text-dmg-red">
                       <CalendarDays className="h-3.5 w-3.5" />
@@ -54,6 +54,16 @@ export function NotificationsBellClassic() {
                       <span className="mt-0.5 block text-[11px] text-dmg-text-3">{n.meta}</span>
                     </span>
                   </Link>
+                  {n.tipo === "lead" && (
+                    <button
+                      type="button"
+                      title="Esconder essa notificação"
+                      onClick={() => dismissLead(n.id)}
+                      className="absolute right-3 top-3 rounded-full p-1 text-white/40 opacity-0 hover:bg-white/10 hover:text-white group-hover:opacity-100"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

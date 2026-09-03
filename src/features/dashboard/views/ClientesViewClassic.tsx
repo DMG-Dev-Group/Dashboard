@@ -3,6 +3,7 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { useModal } from "../modals/ModalProvider";
 import { useConfirm } from "../components/ConfirmProvider";
 import { ClienteModal } from "../modals/ClienteModal";
+import { ClienteDetalheModal } from "../modals/ClienteDetalheModal";
 import { projetosDoCliente } from "@/lib/store/relations";
 import { calcularIdade } from "@/lib/format";
 import { dmgToast } from "@/lib/toast";
@@ -42,7 +43,12 @@ export function ClientesViewClassic() {
             return (
               <div
                 key={c.id}
-                className="group relative flex gap-3.5 rounded-2xl border border-white/8 bg-white/[.035] p-4 transition-all hover:-translate-y-0.5 hover:border-dmg-red-solid/40"
+                onClick={() =>
+                  open("Detalhes do cliente", (close) => (
+                    <ClienteDetalheModal cliente={c} onClose={close} />
+                  ))
+                }
+                className="group relative flex cursor-pointer gap-3.5 rounded-2xl border border-white/8 bg-white/[.035] p-4 transition-all hover:-translate-y-0.5 hover:border-dmg-red-solid/40"
               >
                 <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-dmg-red-dark/35 bg-dmg-red-solid/[.12] text-base font-bold text-dmg-red">
                   {c.nome[0]?.toUpperCase()}
@@ -66,6 +72,7 @@ export function ClientesViewClassic() {
                         href={`https://instagram.com/${c.instagram.replace(/^@/, "")}`}
                         target="_blank"
                         rel="noopener"
+                        onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1 hover:text-dmg-red"
                       >
                         <Instagram className="h-3 w-3" /> {c.instagram}
@@ -79,6 +86,7 @@ export function ClientesViewClassic() {
                           key={p.id}
                           to="/projetos/$id"
                           params={{ id: p.id }}
+                          onClick={(e) => e.stopPropagation()}
                           className="rounded-lg border border-white/10 bg-white/[.04] px-2 py-0.5 font-mono text-[10px] text-dmg-text-2 hover:border-dmg-red-dark hover:text-dmg-red"
                         >
                           {p.nome} →
@@ -89,16 +97,18 @@ export function ClientesViewClassic() {
                 </div>
                 <div className="absolute right-2 top-2 flex gap-1 opacity-0 group-hover:opacity-100">
                   <ClassicIconMini
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.stopPropagation();
                       open("Editar cliente", (close) => (
                         <ClienteModal cliente={c} onClose={close} />
-                      ))
-                    }
+                      ));
+                    }}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </ClassicIconMini>
                   <ClassicIconMini
-                    onClick={async () => {
+                    onClick={async (e) => {
+                      e.stopPropagation();
                       if (
                         await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })
                       ) {

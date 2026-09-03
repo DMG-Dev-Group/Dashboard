@@ -39,7 +39,8 @@ interface CacheState {
 
 interface StoreContextValue extends CacheState {
   ready: boolean;
-  add: <K extends CollectionName>(col: K, obj: Partial<Collections[K]>) => Promise<void>;
+  /** Retorna o id do documento criado — usado quando um fluxo precisa encadear (ex.: criar cliente e já linkar um projeto a ele). */
+  add: <K extends CollectionName>(col: K, obj: Partial<Collections[K]>) => Promise<string>;
   update: <K extends CollectionName>(
     col: K,
     id: string,
@@ -112,7 +113,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       ready,
       async add(col, obj) {
         const { id: _omit, ...rest } = obj as any;
-        await addDoc(collection(db, col as string), { ...rest, criadoEm: serverTimestamp() });
+        const ref = await addDoc(collection(db, col as string), {
+          ...rest,
+          criadoEm: serverTimestamp(),
+        });
+        return ref.id;
       },
       async update(col, id, patch) {
         await updateDoc(doc(db, col as string, id), patch as any);

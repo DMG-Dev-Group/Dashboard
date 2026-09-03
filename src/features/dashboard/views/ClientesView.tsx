@@ -4,6 +4,7 @@ import { Panel, PanelTitle } from "../components/Panel";
 import { useModal } from "../modals/ModalProvider";
 import { useConfirm } from "../components/ConfirmProvider";
 import { ClienteModal } from "../modals/ClienteModal";
+import { ClienteDetalheModal } from "../modals/ClienteDetalheModal";
 import { projetosDoCliente } from "@/lib/store/relations";
 import { calcularIdade } from "@/lib/format";
 import { dmgToast } from "@/lib/toast";
@@ -39,7 +40,12 @@ export function ClientesView() {
             return (
               <div
                 key={c.id}
-                className="relative flex gap-4 rounded-lg border border-dmg-border bg-dmg-surface-2/40 p-4"
+                onClick={() =>
+                  open("Detalhes do cliente", (close) => (
+                    <ClienteDetalheModal cliente={c} onClose={close} />
+                  ))
+                }
+                className="relative flex cursor-pointer gap-4 rounded-lg border border-dmg-border bg-dmg-surface-2/40 p-4 transition-colors hover:border-dmg-border-strong"
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-dmg-border-strong bg-dmg-surface font-bold text-dmg-red">
                   {c.nome[0]?.toUpperCase()}
@@ -63,6 +69,7 @@ export function ClientesView() {
                         href={`https://instagram.com/${c.instagram.replace(/^@/, "")}`}
                         target="_blank"
                         rel="noopener"
+                        onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1 normal-case tracking-normal hover:text-dmg-red"
                       >
                         <Instagram className="h-3 w-3" /> {c.instagram}
@@ -76,6 +83,7 @@ export function ClientesView() {
                           key={p.id}
                           to="/projetos/$id"
                           params={{ id: p.id }}
+                          onClick={(e) => e.stopPropagation()}
                           className="rounded border border-dmg-border-strong bg-dmg-surface px-2 py-0.5 font-mono text-[10px] text-dmg-text-2 hover:border-dmg-red-dark hover:text-dmg-red"
                         >
                           {p.nome} →
@@ -86,17 +94,19 @@ export function ClientesView() {
                 </div>
                 <div className="absolute top-2 right-2 flex gap-0.5">
                   <button
-                    onClick={() =>
+                    onClick={(e) => {
+                      e.stopPropagation();
                       open("Editar cliente", (close) => (
                         <ClienteModal cliente={c} onClose={close} />
-                      ))
-                    }
+                      ));
+                    }}
                     className="rounded p-1 text-dmg-text-3 hover:text-dmg-text"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={async () => {
+                    onClick={async (e) => {
+                      e.stopPropagation();
                       if (
                         await confirm({ title: `Remover o cliente "${c.nome}"?`, danger: true })
                       ) {

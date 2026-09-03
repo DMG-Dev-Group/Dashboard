@@ -1,8 +1,12 @@
 import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
+import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
+import { LeadDetalheModal } from "../modals/LeadDetalheModal";
 import { BRL, fmtTelefone, tempoRelativo, whatsappHref as linkWhatsapp } from "@/lib/format";
+import { dmgToast } from "@/lib/toast";
 import type { Lead } from "@/lib/store/types";
-import { MessageCircle, Mail, Building2 } from "lucide-react";
+import { MessageCircle, Mail, Building2, Trash2 } from "lucide-react";
 
 /**
  * Leads do configurador do site (damage.group) — só leitura. Quem cria essas
@@ -24,9 +28,25 @@ function valorDoLead(l: Lead): { texto: string; sobOrcamento: boolean } {
 }
 
 function LeadCard({ lead }: { lead: Lead }) {
+  const { remove, log } = useStore();
+  const { open } = useModal();
+  const confirm = useConfirm();
   const valor = valorDoLead(lead);
+
+  async function excluir(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (await confirm({ title: `Excluir o lead de "${lead.nome}"?`, danger: true })) {
+      await remove("leads", lead.id);
+      await log(`<b>Lead</b> — pedido de ${lead.nome} excluído`, "lead");
+      dmgToast.success("Lead excluído");
+    }
+  }
+
   return (
-    <div className="relative flex flex-col gap-3 rounded-lg border border-dmg-border bg-dmg-surface-2/40 p-4">
+    <div
+      onClick={() => open("Lead do site", () => <LeadDetalheModal lead={lead} />)}
+      className="relative flex cursor-pointer flex-col gap-3 rounded-lg border border-dmg-border bg-dmg-surface-2/40 p-4 transition-colors hover:border-dmg-border-strong"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="truncate font-semibold">{lead.nome}</div>
@@ -34,16 +54,26 @@ function LeadCard({ lead }: { lead: Lead }) {
             {tempoRelativo(lead.criadoEm)}
           </div>
         </div>
-        <span
-          className={
-            "shrink-0 rounded border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] " +
-            (lead.modalidade === "aluguel"
-              ? "border-sky-500/30 bg-sky-500/10 text-sky-300"
-              : "border-dmg-red-dark/50 bg-dmg-red-solid/10 text-dmg-red")
-          }
-        >
-          {lead.modalidade === "aluguel" ? "aluguel" : "compra"}
-        </span>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span
+            className={
+              "rounded border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] " +
+              (lead.modalidade === "aluguel"
+                ? "border-sky-500/30 bg-sky-500/10 text-sky-300"
+                : "border-dmg-red-dark/50 bg-dmg-red-solid/10 text-dmg-red")
+            }
+          >
+            {lead.modalidade === "aluguel" ? "aluguel" : "compra"}
+          </span>
+          <button
+            type="button"
+            title="Excluir lead"
+            onClick={excluir}
+            className="rounded p-1 text-dmg-text-3 hover:text-dmg-red"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="text-sm text-dmg-text-2">
@@ -84,12 +114,14 @@ function LeadCard({ lead }: { lead: Lead }) {
           )}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 normal-case tracking-normal text-dmg-text-2 hover:text-dmg-red"
         >
           <MessageCircle className="h-3.5 w-3.5" /> {fmtTelefone(lead.whatsapp)}
         </a>
         <a
           href={`mailto:${lead.email}`}
+          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 normal-case tracking-normal text-dmg-text-2 hover:text-dmg-red"
         >
           <Mail className="h-3.5 w-3.5" /> {lead.email}

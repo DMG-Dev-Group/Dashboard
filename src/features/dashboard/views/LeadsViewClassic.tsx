@@ -1,7 +1,11 @@
 import { useStore } from "@/lib/store/StoreProvider";
+import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
+import { LeadDetalheModal } from "../modals/LeadDetalheModal";
 import { BRL, fmtTelefone, tempoRelativo, whatsappHref as linkWhatsapp } from "@/lib/format";
+import { dmgToast } from "@/lib/toast";
 import type { Lead } from "@/lib/store/types";
-import { MessageCircle, Mail, Building2 } from "lucide-react";
+import { MessageCircle, Mail, Building2, Trash2 } from "lucide-react";
 import { ClassicEmpty, ClassicPanel, ClassicPill } from "../components/classic/ClassicUI";
 
 /**
@@ -22,17 +26,43 @@ function valorDoLead(l: Lead): { texto: string; sobOrcamento: boolean } {
 }
 
 function LeadCardClassic({ lead }: { lead: Lead }) {
+  const { remove, log } = useStore();
+  const { open } = useModal();
+  const confirm = useConfirm();
   const valor = valorDoLead(lead);
+
+  async function excluir(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (await confirm({ title: `Excluir o lead de "${lead.nome}"?`, danger: true })) {
+      await remove("leads", lead.id);
+      await log(`<b>Lead</b> — pedido de ${lead.nome} excluído`, "lead");
+      dmgToast.success("Lead excluído");
+    }
+  }
+
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[.035] p-4 transition-all hover:-translate-y-0.5 hover:border-dmg-red-solid/40">
+    <div
+      onClick={() => open("Lead do site", () => <LeadDetalheModal lead={lead} />)}
+      className="flex cursor-pointer flex-col gap-3 rounded-2xl border border-white/8 bg-white/[.035] p-4 transition-all hover:-translate-y-0.5 hover:border-dmg-red-solid/40"
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="truncate text-[14.5px] font-semibold text-dmg-text">{lead.nome}</div>
           <div className="mt-0.5 text-[11px] text-white/40">{tempoRelativo(lead.criadoEm)}</div>
         </div>
-        <ClassicPill tone={lead.modalidade === "aluguel" ? "muted" : "default"}>
-          {lead.modalidade === "aluguel" ? "aluguel" : "compra"}
-        </ClassicPill>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <ClassicPill tone={lead.modalidade === "aluguel" ? "muted" : "default"}>
+            {lead.modalidade === "aluguel" ? "aluguel" : "compra"}
+          </ClassicPill>
+          <button
+            type="button"
+            title="Excluir lead"
+            onClick={excluir}
+            className="rounded p-1 text-white/40 hover:text-dmg-red"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       <div className="text-[13px] text-dmg-text-2">
@@ -73,12 +103,14 @@ function LeadCardClassic({ lead }: { lead: Lead }) {
           )}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 text-dmg-text-2 hover:text-dmg-red"
         >
           <MessageCircle className="h-3.5 w-3.5" /> {fmtTelefone(lead.whatsapp)}
         </a>
         <a
           href={`mailto:${lead.email}`}
+          onClick={(e) => e.stopPropagation()}
           className="inline-flex items-center gap-1.5 text-dmg-text-2 hover:text-dmg-red"
         >
           <Mail className="h-3.5 w-3.5" /> {lead.email}
