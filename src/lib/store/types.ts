@@ -89,12 +89,47 @@ export interface Atividade {
   ts: number;
 }
 
+export type LeadModalidade = "compra" | "aluguel";
+
+export interface LeadItem {
+  descricao: string;
+  valor: number;
+}
+
+/**
+ * Um pedido de orçamento vindo do configurador do site (damage.group).
+ * Gravado pelo Route Handler do site — repo `DMG` — via Firebase Admin, não
+ * pelo painel. Não tem `add`/`update` daqui: é read-only por natureza, então
+ * não precisa de modal de criação/edição como Cliente ou Projeto.
+ */
+export interface Lead {
+  id: string;
+  nome: string;
+  whatsapp: string;
+  email: string;
+  empresa?: string | null;
+  categoria: string;
+  item?: string | null;
+  modalidade: LeadModalidade;
+  /** Só preenchido quando modalidade é "aluguel". */
+  planoRecorrente?: string | null;
+  subtotal?: number | null;
+  total?: number | null;
+  /** true pros itens "sob orçamento" (ex.: robôs) — total/subtotal ficam nulos nesse caso. */
+  sobOrcamento: boolean;
+  comentario?: string | null;
+  modulos?: LeadItem[];
+  multiplicadores?: LeadItem[];
+  criadoEm: number;
+}
+
 export interface Collections {
   projetos: Projeto;
   clientes: Cliente;
   receitas: Receita;
   eventos: Evento;
   atividades: Atividade;
+  leads: Lead;
 }
 
 export type CollectionName = keyof Collections;
