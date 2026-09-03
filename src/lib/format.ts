@@ -62,6 +62,27 @@ export function fmtDataBR(iso: string): string {
   return new Date(iso + "T12:00").toLocaleDateString("pt-BR");
 }
 
+/**
+ * "+55 (DDD) 9####-####". Aceita o número como a pessoa digitou no site —
+ * com ou sem DDI, com ou sem formatação — porque é exatamente isso que chega
+ * salvo no lead. Celular de 8 dígitos (sem o 9 na frente) e número
+ * incompleto caem no fallback: melhor mostrar cru do que formatar errado.
+ */
+export function fmtTelefone(numero: string): string {
+  let d = numero.replace(/\D/g, "");
+  if (d.startsWith("55") && d.length > 11) d = d.slice(2);
+  if (d.length === 11) return `+55 (${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `+55 (${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return numero;
+}
+
+/** Link de WhatsApp já com DDI e uma mensagem inicial. */
+export function whatsappHref(numero: string, mensagem: string): string {
+  let d = numero.replace(/\D/g, "");
+  if (!d.startsWith("55")) d = `55${d}`;
+  return `https://wa.me/${d}?text=${encodeURIComponent(mensagem)}`;
+}
+
 /** Idade calculada a partir da data de nascimento (ISO) — nunca guarde a idade pronta, ela envelhece errado. */
 export function calcularIdade(nascimentoISO: string): number {
   const nasc = new Date(nascimentoISO + "T12:00");

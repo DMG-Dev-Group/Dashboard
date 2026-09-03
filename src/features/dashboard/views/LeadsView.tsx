@@ -1,6 +1,6 @@
 import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
-import { BRL, tempoRelativo } from "@/lib/format";
+import { BRL, fmtTelefone, tempoRelativo, whatsappHref as linkWhatsapp } from "@/lib/format";
 import type { Lead } from "@/lib/store/types";
 import { MessageCircle, Mail, Building2 } from "lucide-react";
 
@@ -21,13 +21,6 @@ function valorDoLead(l: Lead): { texto: string; sobOrcamento: boolean } {
     };
   }
   return { texto: BRL(l.total ?? 0), sobOrcamento: false };
-}
-
-function whatsappHref(numero: string, nome: string): string {
-  const digitos = numero.replace(/\D/g, "");
-  const comDDI = digitos.startsWith("55") ? digitos : `55${digitos}`;
-  const msg = `Olá, ${nome}! Aqui é da DMG, vi seu pedido de orçamento no site.`;
-  return `https://wa.me/${comDDI}?text=${encodeURIComponent(msg)}`;
 }
 
 function LeadCard({ lead }: { lead: Lead }) {
@@ -85,12 +78,15 @@ function LeadCard({ lead }: { lead: Lead }) {
 
       <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-dmg-border pt-3 font-mono text-[11px] uppercase tracking-[0.1em]">
         <a
-          href={whatsappHref(lead.whatsapp, lead.nome)}
+          href={linkWhatsapp(
+            lead.whatsapp,
+            `Olá, ${lead.nome}! Aqui é da DMG, vi seu pedido de orçamento no site.`,
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 normal-case tracking-normal text-dmg-text-2 hover:text-dmg-red"
         >
-          <MessageCircle className="h-3.5 w-3.5" /> {lead.whatsapp}
+          <MessageCircle className="h-3.5 w-3.5" /> {fmtTelefone(lead.whatsapp)}
         </a>
         <a
           href={`mailto:${lead.email}`}
