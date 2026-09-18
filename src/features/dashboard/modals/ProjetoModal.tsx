@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { useStore } from "@/lib/store/StoreProvider";
-import type { Projeto, ProjectStatus } from "@/lib/store/types";
+import type { ModeloCobranca, Projeto, ProjectStatus } from "@/lib/store/types";
 import { calcProgresso } from "@/lib/store/relations";
 import { RESPONSAVEIS } from "@/lib/store/constants";
 
@@ -18,6 +18,8 @@ export function ProjetoModal({ projeto, onClose }: Props) {
     clienteId: projeto?.clienteId ?? "",
     status: projeto?.status ?? "plan",
     valor: projeto?.valor ?? 0,
+    modeloCobranca: projeto?.modeloCobranca ?? "unico",
+    valorMensal: projeto?.valorMensal ?? 0,
     stack: projeto?.stack ?? "",
     repo: projeto?.repo ?? "",
     url: projeto?.url ?? "",
@@ -27,10 +29,14 @@ export function ProjetoModal({ projeto, onClose }: Props) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     // Progresso é sempre derivado das To-Dos do projeto (não é editável à mão).
+    const modelo = f.modeloCobranca ?? "unico";
     const payload = {
       ...f,
       progresso: calcProgresso(projeto?.todos),
-      valor: Number(f.valor) || 0,
+      // valor/valorMensal só fazem sentido pro modelo escolhido — zera o que
+      // não se aplica em vez de deixar lixo de uma troca de modelo anterior.
+      valor: modelo === "mensal" ? 0 : Number(f.valor) || 0,
+      valorMensal: modelo === "unico" ? 0 : Number(f.valorMensal) || 0,
     };
     if (projeto) {
       await update("projetos", projeto.id, payload);
@@ -49,7 +55,11 @@ export function ProjetoModal({ projeto, onClose }: Props) {
       </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Tipo">
-          <Input value={f.tipo ?? ""} onChange={(v) => setF({ ...f, tipo: v })} placeholder="Web, App, API…" />
+          <Input
+            value={f.tipo ?? ""}
+            onChange={(v) => setF({ ...f, tipo: v })}
+            placeholder="Web, App, API…"
+          />
         </Field>
         <Field label="Responsável">
           <Select value={f.resp ?? ""} onChange={(v) => setF({ ...f, resp: v })}>
@@ -83,13 +93,40 @@ export function ProjetoModal({ projeto, onClose }: Props) {
       <p className="-mt-1 font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3">
         // progresso é calculado automaticamente pelas to-dos do projeto
       </p>
-      <Field label="Valor contratado (R$)">
-        <Input
-          type="number"
-          value={String(f.valor ?? 0)}
-          onChange={(v) => setF({ ...f, valor: Number(v) })}
-        />
+      <Field label="Modelo de cobrança">
+        <Select
+          value={f.modeloCobranca ?? "unico"}
+          onChange={(v) => setF({ ...f, modeloCobranca: v as ModeloCobranca })}
+        >
+          <option value="unico">pagamento único</option>
+          <option value="mensal">mensalidade</option>
+          <option value="hibrido">entrada + mensalidade</option>
+        </Select>
       </Field>
+      <div className="grid grid-cols-2 gap-3">
+        {f.modeloCobranca !== "mensal" && (
+          <Field
+            label={
+              f.modeloCobranca === "hibrido" ? "Valor de entrada (R$)" : "Valor contratado (R$)"
+            }
+          >
+            <Input
+              type="number"
+              value={String(f.valor ?? 0)}
+              onChange={(v) => setF({ ...f, valor: Number(v) })}
+            />
+          </Field>
+        )}
+        {(f.modeloCobranca === "mensal" || f.modeloCobranca === "hibrido") && (
+          <Field label="Mensalidade (R$)">
+            <Input
+              type="number"
+              value={String(f.valorMensal ?? 0)}
+              onChange={(v) => setF({ ...f, valorMensal: Number(v) })}
+            />
+          </Field>
+        )}
+      </div>
       <Field label="Stack (separada por vírgulas)">
         <Input
           value={f.stack ?? ""}
@@ -106,7 +143,11 @@ export function ProjetoModal({ projeto, onClose }: Props) {
           />
         </Field>
         <Field label="URL de produção">
-          <Input value={f.url ?? ""} onChange={(v) => setF({ ...f, url: v })} placeholder="https://" />
+          <Input
+            value={f.url ?? ""}
+            onChange={(v) => setF({ ...f, url: v })}
+            placeholder="https://"
+          />
         </Field>
       </div>
       <Field label="Descrição / como foi feito">
@@ -187,7 +228,13 @@ export function Select({
   );
 }
 
-export function Actions({ onClose, submitLabel = "salvar" }: { onClose: () => void; submitLabel?: string }) {
+export function Actions({
+  onClose,
+  submitLabel = "salvar",
+}: {
+  onClose: () => void;
+  submitLabel?: string;
+}) {
   return (
     <div className="mt-4 flex justify-end gap-2">
       <button

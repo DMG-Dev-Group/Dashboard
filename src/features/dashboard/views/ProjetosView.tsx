@@ -3,8 +3,7 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
-import { progressoDoProjeto } from "@/lib/store/relations";
-import { BRL } from "@/lib/format";
+import { fmtCobranca, progressoDoProjeto } from "@/lib/store/relations";
 import { useModal } from "../modals/ModalProvider";
 import { useConfirm } from "../components/ConfirmProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
@@ -44,7 +43,7 @@ export function ProjetosView() {
                 <th className="pb-3 pr-4">Responsável</th>
                 <th className="pb-3 pr-4">Status</th>
                 <th className="pb-3 pr-4">Progresso</th>
-                <th className="pb-3 pr-4">Valor</th>
+                <th className="pb-3 pr-4">Cobrança</th>
                 <th className="pb-3" />
               </tr>
             </thead>
@@ -77,9 +76,7 @@ export function ProjetosView() {
                   <td className="py-3 pr-4 min-w-[160px]">
                     <ProgressBar value={progressoDoProjeto(p)} />
                   </td>
-                  <td className="py-3 pr-4 tabular-nums text-dmg-text-2">
-                    {p.valor ? BRL(Number(p.valor)) : "—"}
-                  </td>
+                  <td className="py-3 pr-4 tabular-nums text-dmg-text-2">{fmtCobranca(p)}</td>
                   <td className="py-3 text-right">
                     <div className="inline-flex gap-1">
                       <button

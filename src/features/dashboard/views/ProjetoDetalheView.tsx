@@ -3,6 +3,7 @@ import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
 import { BRL, fmtDataBR } from "@/lib/format";
+import { fmtCobranca } from "@/lib/store/relations";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
@@ -164,8 +165,8 @@ export function ProjetoDetalheView() {
             <KV label="Produção">
               <LinkOut url={p.url} what="a URL" />
             </KV>
-            <KV label="Valor contratado">
-              <b className="tabular-nums">{p.valor ? BRL(Number(p.valor)) : "—"}</b>
+            <KV label="Cobrança">
+              <b className="tabular-nums">{fmtCobranca(p)}</b>
             </KV>
             <KV label="Faturado">
               <b className="tabular-nums text-emerald-400">{BRL(faturado)}</b>
