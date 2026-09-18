@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BRL, fmtDataBR } from "@/lib/format";
+import { fmtCobranca } from "@/lib/store/relations";
 import { useModal } from "../modals/ModalProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
 import { MarkdownEditor } from "../components/markdown/MarkdownEditor";
@@ -159,10 +160,8 @@ export function ProjetoDetalheViewClassic() {
             <KV label="Produção">
               <LinkOut url={p.url} what="a URL" />
             </KV>
-            <KV label="Valor contratado">
-              <b className="font-mono text-[13px] text-dmg-text">
-                {p.valor ? BRL(Number(p.valor)) : "—"}
-              </b>
+            <KV label="Cobrança">
+              <b className="font-mono text-[13px] text-dmg-text">{fmtCobranca(p)}</b>
             </KV>
             <KV label="Faturado">
               <b className="font-mono text-[13px] text-emerald-300">{BRL(faturado)}</b>

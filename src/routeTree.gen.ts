@@ -9,80 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
-import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
-import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
-import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
-import { Route as AuthConfigRouteImport } from './routes/_auth.config'
-import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
-import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
-import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
-import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
-import { Route as AuthLeadsRouteImport } from './routes/_auth.leads'
-import { Route as AuthNotasRouteImport } from './routes/_auth.notas'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
+import { Route as AuthProjetosPessoaisRouteImport } from './routes/_auth.projetos-pessoais'
+import { Route as AuthNotasRouteImport } from './routes/_auth.notas'
+import { Route as AuthLeadsRouteImport } from './routes/_auth.leads'
+import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
+import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
+import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
+import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
+import { Route as AuthConfigRouteImport } from './routes/_auth.config'
+import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
+import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
+import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
+import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
 import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
 import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
+const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
+  id: '/seguranca',
+  path: '/seguranca',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthAtividadesRoute = AuthAtividadesRouteImport.update({
-  id: '/atividades',
-  path: '/atividades',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthCalendarioRoute = AuthCalendarioRouteImport.update({
-  id: '/calendario',
-  path: '/calendario',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthClientesRoute = AuthClientesRouteImport.update({
-  id: '/clientes',
-  path: '/clientes',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthConfigRoute = AuthConfigRouteImport.update({
-  id: '/config',
-  path: '/config',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthDashboardRoute = AuthDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthEquipeRoute = AuthEquipeRouteImport.update({
-  id: '/equipe',
-  path: '/equipe',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthFinanceiroRoute = AuthFinanceiroRouteImport.update({
-  id: '/financeiro',
-  path: '/financeiro',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
-  id: '/infraestrutura',
-  path: '/infraestrutura',
-  getParentRoute: () => AuthRoute,
-} as any)
-const AuthLeadsRoute = AuthLeadsRouteImport.update({
-  id: '/leads',
-  path: '/leads',
+const AuthProjetosPessoaisRoute = AuthProjetosPessoaisRouteImport.update({
+  id: '/projetos-pessoais',
+  path: '/projetos-pessoais',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthNotasRoute = AuthNotasRouteImport.update({
@@ -90,9 +51,54 @@ const AuthNotasRoute = AuthNotasRouteImport.update({
   path: '/notas',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
-  id: '/seguranca',
-  path: '/seguranca',
+const AuthLeadsRoute = AuthLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
+  id: '/infraestrutura',
+  path: '/infraestrutura',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthFinanceiroRoute = AuthFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthEquipeRoute = AuthEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthDashboardRoute = AuthDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthConfigRoute = AuthConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthClientesRoute = AuthClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthCalendarioRoute = AuthCalendarioRouteImport.update({
+  id: '/calendario',
+  path: '/calendario',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAtividadesRoute = AuthAtividadesRouteImport.update({
+  id: '/atividades',
+  path: '/atividades',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/infraestrutura': typeof AuthInfraestruturaRoute
   '/leads': typeof AuthLeadsRoute
   '/notas': typeof AuthNotasRoute
+  '/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
   '/projetos/': typeof AuthProjetosIndexRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/infraestrutura': typeof AuthInfraestruturaRoute
   '/leads': typeof AuthLeadsRoute
   '/notas': typeof AuthNotasRoute
+  '/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
   '/projetos': typeof AuthProjetosIndexRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/_auth/infraestrutura': typeof AuthInfraestruturaRoute
   '/_auth/leads': typeof AuthLeadsRoute
   '/_auth/notas': typeof AuthNotasRoute
+  '/_auth/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/_auth/seguranca': typeof AuthSegurancaRoute
   '/_auth/projetos/$id': typeof AuthProjetosIdRoute
   '/_auth/projetos/': typeof AuthProjetosIndexRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/infraestrutura'
     | '/leads'
     | '/notas'
+    | '/projetos-pessoais'
     | '/seguranca'
     | '/projetos/$id'
     | '/projetos/'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/infraestrutura'
     | '/leads'
     | '/notas'
+    | '/projetos-pessoais'
     | '/seguranca'
     | '/projetos/$id'
     | '/projetos'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/_auth/infraestrutura'
     | '/_auth/leads'
     | '/_auth/notas'
+    | '/_auth/projetos-pessoais'
     | '/_auth/seguranca'
     | '/_auth/projetos/$id'
     | '/_auth/projetos/'
@@ -221,13 +233,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -235,74 +240,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/analytics': {
-      id: '/_auth/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AuthAnalyticsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth/seguranca': {
+      id: '/_auth/seguranca'
+      path: '/seguranca'
+      fullPath: '/seguranca'
+      preLoaderRoute: typeof AuthSegurancaRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/atividades': {
-      id: '/_auth/atividades'
-      path: '/atividades'
-      fullPath: '/atividades'
-      preLoaderRoute: typeof AuthAtividadesRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/calendario': {
-      id: '/_auth/calendario'
-      path: '/calendario'
-      fullPath: '/calendario'
-      preLoaderRoute: typeof AuthCalendarioRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/clientes': {
-      id: '/_auth/clientes'
-      path: '/clientes'
-      fullPath: '/clientes'
-      preLoaderRoute: typeof AuthClientesRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/config': {
-      id: '/_auth/config'
-      path: '/config'
-      fullPath: '/config'
-      preLoaderRoute: typeof AuthConfigRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/dashboard': {
-      id: '/_auth/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthDashboardRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/equipe': {
-      id: '/_auth/equipe'
-      path: '/equipe'
-      fullPath: '/equipe'
-      preLoaderRoute: typeof AuthEquipeRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/financeiro': {
-      id: '/_auth/financeiro'
-      path: '/financeiro'
-      fullPath: '/financeiro'
-      preLoaderRoute: typeof AuthFinanceiroRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/infraestrutura': {
-      id: '/_auth/infraestrutura'
-      path: '/infraestrutura'
-      fullPath: '/infraestrutura'
-      preLoaderRoute: typeof AuthInfraestruturaRouteImport
-      parentRoute: typeof AuthRoute
-    }
-    '/_auth/leads': {
-      id: '/_auth/leads'
-      path: '/leads'
-      fullPath: '/leads'
-      preLoaderRoute: typeof AuthLeadsRouteImport
+    '/_auth/projetos-pessoais': {
+      id: '/_auth/projetos-pessoais'
+      path: '/projetos-pessoais'
+      fullPath: '/projetos-pessoais'
+      preLoaderRoute: typeof AuthProjetosPessoaisRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/notas': {
@@ -312,11 +268,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthNotasRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/seguranca': {
-      id: '/_auth/seguranca'
-      path: '/seguranca'
-      fullPath: '/seguranca'
-      preLoaderRoute: typeof AuthSegurancaRouteImport
+    '/_auth/leads': {
+      id: '/_auth/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof AuthLeadsRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/infraestrutura': {
+      id: '/_auth/infraestrutura'
+      path: '/infraestrutura'
+      fullPath: '/infraestrutura'
+      preLoaderRoute: typeof AuthInfraestruturaRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/financeiro': {
+      id: '/_auth/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof AuthFinanceiroRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/equipe': {
+      id: '/_auth/equipe'
+      path: '/equipe'
+      fullPath: '/equipe'
+      preLoaderRoute: typeof AuthEquipeRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/dashboard': {
+      id: '/_auth/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/config': {
+      id: '/_auth/config'
+      path: '/config'
+      fullPath: '/config'
+      preLoaderRoute: typeof AuthConfigRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/clientes': {
+      id: '/_auth/clientes'
+      path: '/clientes'
+      fullPath: '/clientes'
+      preLoaderRoute: typeof AuthClientesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/calendario': {
+      id: '/_auth/calendario'
+      path: '/calendario'
+      fullPath: '/calendario'
+      preLoaderRoute: typeof AuthCalendarioRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/atividades': {
+      id: '/_auth/atividades'
+      path: '/atividades'
+      fullPath: '/atividades'
+      preLoaderRoute: typeof AuthAtividadesRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/analytics': {
+      id: '/_auth/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthAnalyticsRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/projetos/': {
@@ -348,6 +367,7 @@ interface AuthRouteChildren {
   AuthInfraestruturaRoute: typeof AuthInfraestruturaRoute
   AuthLeadsRoute: typeof AuthLeadsRoute
   AuthNotasRoute: typeof AuthNotasRoute
+  AuthProjetosPessoaisRoute: typeof AuthProjetosPessoaisRoute
   AuthSegurancaRoute: typeof AuthSegurancaRoute
   AuthProjetosIdRoute: typeof AuthProjetosIdRoute
   AuthProjetosIndexRoute: typeof AuthProjetosIndexRoute
@@ -365,6 +385,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthInfraestruturaRoute: AuthInfraestruturaRoute,
   AuthLeadsRoute: AuthLeadsRoute,
   AuthNotasRoute: AuthNotasRoute,
+  AuthProjetosPessoaisRoute: AuthProjetosPessoaisRoute,
   AuthSegurancaRoute: AuthSegurancaRoute,
   AuthProjetosIdRoute: AuthProjetosIdRoute,
   AuthProjetosIndexRoute: AuthProjetosIndexRoute,

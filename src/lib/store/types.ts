@@ -18,6 +18,14 @@ export interface Todo {
   imagem?: string;
 }
 
+/**
+ * "unico" = pagamento único (só `valor`). "mensal" = assinatura pura (só
+ * `valorMensal`). "hibrido" = entrada/valor vitalício + mensalidade de
+ * manutenção (os dois campos). Sem `modeloCobranca` = "unico" — é como todo
+ * projeto antigo já se comporta hoje (só o campo `valor`).
+ */
+export type ModeloCobranca = "unico" | "mensal" | "hibrido";
+
 export interface Projeto {
   id: string;
   nome: string;
@@ -26,13 +34,34 @@ export interface Projeto {
   resp?: string;
   status: ProjectStatus;
   progresso: number;
+  /** Pagamento único (modelo "unico") ou entrada/valor vitalício (modelo "hibrido"). */
   valor?: number;
+  modeloCobranca?: ModeloCobranca;
+  /** Presente quando modeloCobranca é "mensal" ou "hibrido". */
+  valorMensal?: number;
   stack?: string;
   repo?: string;
   url?: string;
   desc?: string;
   notas?: string;
   todos?: Todo[];
+}
+
+/**
+ * Projeto pessoal de um membro — igual ao quadro pessoal de Notas: só quem
+ * criou vê (guardado num doc por usuário, não numa coleção compartilhada).
+ * Sem cliente/valor/responsável — é uma iniciativa própria, não um contrato.
+ */
+export interface ProjetoPessoal {
+  id: string;
+  nome: string;
+  desc?: string;
+  status: ProjectStatus;
+  stack?: string;
+  repo?: string;
+  url?: string;
+  todos?: Todo[];
+  criadoEm: number;
 }
 
 export interface Cliente {

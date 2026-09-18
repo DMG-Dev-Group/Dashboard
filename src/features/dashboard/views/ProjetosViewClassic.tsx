@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useStore } from "@/lib/store/StoreProvider";
-import { progressoDoProjeto } from "@/lib/store/relations";
-import { BRL } from "@/lib/format";
+import { fmtCobranca, progressoDoProjeto } from "@/lib/store/relations";
 import { useModal } from "../modals/ModalProvider";
 import { useConfirm } from "../components/ConfirmProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
@@ -43,7 +42,7 @@ export function ProjetosViewClassic() {
               <ClassicTh>Responsável</ClassicTh>
               <ClassicTh>Status</ClassicTh>
               <ClassicTh>Progresso</ClassicTh>
-              <ClassicTh>Valor</ClassicTh>
+              <ClassicTh>Cobrança</ClassicTh>
               <th className="px-5 py-3.5" />
             </tr>
           </thead>
@@ -76,7 +75,7 @@ export function ProjetosViewClassic() {
                     <ClassicProgress value={progressoDoProjeto(p)} />
                   </td>
                   <td className="border-b border-white/10 px-5 py-3.5 text-sm tabular-nums text-dmg-text-2">
-                    {p.valor ? BRL(Number(p.valor)) : "—"}
+                    {fmtCobranca(p)}
                   </td>
                   <td className="border-b border-white/10 px-5 py-3.5 text-right">
                     <div className="inline-flex gap-1.5">
