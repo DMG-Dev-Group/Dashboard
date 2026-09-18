@@ -143,8 +143,18 @@ export const askAssistant = createServerFn({ method: "POST" })
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
       console.error("[assistant] Groq respondeu erro:", res.status, errText);
+      // Mostra o motivo real (mensagem da Groq, sem a key) no próprio chat —
+      // sem isso, o único jeito de saber por que falhou seria olhar o log do
+      // servidor, que quem estiver testando pode não ter acesso.
+      let motivo = errText;
+      try {
+        const parsed = JSON.parse(errText) as { error?: { message?: string } };
+        if (parsed.error?.message) motivo = parsed.error.message;
+      } catch {
+        // corpo não era JSON — usa o texto cru mesmo
+      }
       return {
-        texto: "A IA recusou a pergunta (erro no servidor) — tenta de novo em instantes.",
+        texto: `A IA recusou a pergunta (erro ${res.status}): ${motivo || "sem detalhe"}`,
         toolCall: null,
       };
     }
