@@ -12,12 +12,14 @@ import {
   UserSquare2,
   StickyNote,
   Inbox,
+  FolderGit2,
 } from "lucide-react";
 
 export type ViewId =
   | "dashboard"
   | "financeiro"
   | "projetos"
+  | "projetosPessoais"
   | "notas"
   | "equipe"
   | "clientes"
@@ -47,6 +49,13 @@ export const NAV_ITEMS: NavItem[] = [
   },
   { id: "financeiro", label: "Financeiro", to: "/financeiro", icon: Wallet, group: "Principal" },
   { id: "projetos", label: "Projetos", to: "/projetos", icon: FolderKanban, group: "Principal" },
+  {
+    id: "projetosPessoais",
+    label: "Projetos Pessoais",
+    to: "/projetos-pessoais",
+    icon: FolderGit2,
+    group: "Principal",
+  },
   { id: "notas", label: "Notas & To-Do", to: "/notas", icon: StickyNote, group: "Principal" },
   { id: "equipe", label: "Membros", to: "/equipe", icon: UserSquare2, group: "Principal" },
   { id: "leads", label: "Leads", to: "/leads", icon: Inbox, group: "Operação" },
@@ -74,6 +83,7 @@ export const NAV_ITEMS: NavItem[] = [
 export const TITULOS: Record<ViewId | "projeto", [string, string]> = {
   dashboard: ["// visão geral", "Visão Geral"],
   projetos: ["// principal", "Projetos"],
+  projetosPessoais: ["// principal", "Projetos Pessoais"],
   notas: ["// principal", "Notas & To-Do"],
   equipe: ["// principal", "Membros"],
   financeiro: ["// principal", "Financeiro"],
