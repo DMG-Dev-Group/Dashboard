@@ -10,6 +10,7 @@ import { useNavSummaries } from "./useNavSummaries";
 import { usePerfil } from "@/lib/store/perfil";
 import { useDragReorder } from "@/hooks/useDragReorder";
 import { useHoverCapable } from "@/hooks/useHoverCapable";
+import { AssistantWidget } from "../assistant/AssistantWidget";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import logoUrl from "@/assets/logo.svg";
 import { Eye, EyeOff, GripVertical, Menu, SlidersHorizontal } from "lucide-react";
@@ -154,6 +155,8 @@ export function ModernLayout({ children }: { children: ReactNode }) {
       {open && (
         <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setOpen(false)} />
       )}
+
+      <AssistantWidget />
     </div>
   );
 }
