@@ -11,13 +11,41 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 
 export interface AssistantContext {
   hoje: string;
-  eventosProximos: { titulo: string; data: string; hora?: string; tipo?: string }[];
+  eventosProximos: { id: string; titulo: string; data: string; hora?: string; tipo?: string }[];
   projetos: { id: string; nome: string; status: string; clienteId?: string }[];
   clientes: { id: string; nome: string }[];
+  /** Últimos lançamentos (não só o mês atual) — precisa ter id pra editar/excluir um específico. */
+  lancamentosRecentes: {
+    id: string;
+    desc: string;
+    valor: number;
+    tipo: string;
+    data: string;
+    projetoId?: string;
+    origem?: string;
+  }[];
   financeiroMes: { entradas: number; saidas: number };
 }
 
-export type AssistantToolName = "criar_projeto" | "lancar_financeiro";
+/**
+ * Convenção de nome: `${acao}_${entidade}`, acao em "criar"|"editar"|"excluir",
+ * entidade em "projeto"|"evento"|"lancamento"|"cliente" — o client (useAssistant.ts)
+ * faz o dispatch genérico a partir desse padrão, então uma tool nova só precisa
+ * seguir a convenção aqui.
+ */
+export type AssistantToolName =
+  | "criar_projeto"
+  | "editar_projeto"
+  | "excluir_projeto"
+  | "criar_evento"
+  | "editar_evento"
+  | "excluir_evento"
+  | "criar_lancamento"
+  | "editar_lancamento"
+  | "excluir_lancamento"
+  | "criar_cliente"
+  | "editar_cliente"
+  | "excluir_cliente";
 
 export interface AssistantToolCall {
   id: string;
@@ -43,6 +71,8 @@ export interface AssistantResponse {
 // se o modelo existe.
 const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
+const idField = (desc: string) => ({ type: "string", description: desc }) as const;
+
 const TOOLS = [
   {
     type: "function",
@@ -53,10 +83,9 @@ const TOOLS = [
         type: "object",
         properties: {
           nome: { type: "string", description: "nome do projeto" },
-          clienteId: {
-            type: "string",
-            description: "id do cliente, se der pra identificar pela lista de clientes do contexto",
-          },
+          clienteId: idField(
+            "id do cliente, se der pra identificar pela lista de clientes do contexto",
+          ),
           status: { type: "string", enum: ["plan", "dev", "producao", "done"] },
           modeloCobranca: {
             type: "string",
@@ -75,7 +104,93 @@ const TOOLS = [
   {
     type: "function",
     function: {
-      name: "lancar_financeiro",
+      name: "editar_projeto",
+      description:
+        "Muda um ou mais campos de um projeto já existente. Inclua só os campos que o usuário pediu pra mudar.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do projeto, da lista de projetos do contexto"),
+          nome: { type: "string" },
+          clienteId: idField("id do cliente"),
+          status: { type: "string", enum: ["plan", "dev", "producao", "done"] },
+          modeloCobranca: { type: "string", enum: ["unico", "mensal", "hibrido"] },
+          valor: { type: "number" },
+          valorMensal: { type: "number" },
+          desc: { type: "string" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "excluir_projeto",
+      description: "Exclui um projeto permanentemente. Ação irreversível.",
+      parameters: {
+        type: "object",
+        properties: { id: idField("id do projeto, da lista de projetos do contexto") },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "criar_evento",
+      description: "Cria um evento no calendário (reunião, entrega, deadline...).",
+      parameters: {
+        type: "object",
+        properties: {
+          titulo: { type: "string" },
+          data: {
+            type: "string",
+            description:
+              "data ISO (AAAA-MM-DD) — calcule a partir de 'hoje' do contexto pra termos relativos tipo amanhã/semana que vem",
+          },
+          hora: { type: "string", description: "HH:MM, se mencionado" },
+          tipo: { type: "string", enum: ["reuniao", "entrega", "deadline", "outro"] },
+        },
+        required: ["titulo", "data"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "editar_evento",
+      description:
+        "Muda um ou mais campos de um evento já existente. Inclua só os campos que o usuário pediu pra mudar.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do evento, da lista de eventos próximos do contexto"),
+          titulo: { type: "string" },
+          data: { type: "string", description: "data ISO (AAAA-MM-DD)" },
+          hora: { type: "string" },
+          tipo: { type: "string", enum: ["reuniao", "entrega", "deadline", "outro"] },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "excluir_evento",
+      description: "Exclui um evento permanentemente. Ação irreversível.",
+      parameters: {
+        type: "object",
+        properties: { id: idField("id do evento, da lista de eventos próximos do contexto") },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "criar_lancamento",
       description: "Lança uma entrada (receita) ou saída (gasto) no financeiro.",
       parameters: {
         type: "object",
@@ -83,10 +198,97 @@ const TOOLS = [
           tipo: { type: "string", enum: ["entrada", "saida"] },
           desc: { type: "string", description: "descrição do lançamento" },
           valor: { type: "number" },
-          projetoId: { type: "string", description: "id do projeto relacionado, se houver" },
+          projetoId: idField("id do projeto relacionado, se houver"),
           categoria: { type: "string" },
         },
         required: ["tipo", "desc", "valor"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "editar_lancamento",
+      description:
+        "Muda um ou mais campos de um lançamento já existente. Inclua só os campos que o usuário pediu pra mudar. Lançamento sincronizado do banco (origem != manual) só aceita mudar desc/projetoId/categoria — avise o usuário se ele pedir pra mudar valor/tipo/data desse tipo de lançamento.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do lançamento, da lista de lançamentos recentes do contexto"),
+          desc: { type: "string" },
+          valor: { type: "number" },
+          tipo: { type: "string", enum: ["entrada", "saida"] },
+          data: { type: "string", description: "data ISO (AAAA-MM-DD)" },
+          projetoId: idField("id do projeto relacionado"),
+          categoria: { type: "string" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "excluir_lancamento",
+      description: "Exclui um lançamento financeiro permanentemente. Ação irreversível.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do lançamento, da lista de lançamentos recentes do contexto"),
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "criar_cliente",
+      description: "Cadastra um novo cliente.",
+      parameters: {
+        type: "object",
+        properties: {
+          nome: { type: "string" },
+          celular: { type: "string" },
+          email: { type: "string" },
+          instagram: { type: "string" },
+          empresa: { type: "string" },
+          nascimento: { type: "string", description: "data ISO (AAAA-MM-DD)" },
+        },
+        required: ["nome"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "editar_cliente",
+      description:
+        "Muda um ou mais campos de um cliente já existente. Inclua só os campos que o usuário pediu pra mudar.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do cliente, da lista de clientes do contexto"),
+          nome: { type: "string" },
+          celular: { type: "string" },
+          email: { type: "string" },
+          instagram: { type: "string" },
+          empresa: { type: "string" },
+          nascimento: { type: "string" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "excluir_cliente",
+      description: "Exclui um cliente permanentemente. Ação irreversível.",
+      parameters: {
+        type: "object",
+        properties: { id: idField("id do cliente, da lista de clientes do contexto") },
+        required: ["id"],
       },
     },
   },
@@ -98,15 +300,19 @@ function montaSystemPrompt(ctx: AssistantContext): string {
     "Responda sempre em português, direto e curto.",
     `Hoje é ${ctx.hoje}.`,
     "",
-    "Dados atuais do painel (só isso — nunca invente dado que não está aqui):",
+    "Dados atuais do painel (só isso — nunca invente dado que não está aqui, e nunca invente um id):",
     `Eventos próximos: ${JSON.stringify(ctx.eventosProximos)}`,
     `Projetos: ${JSON.stringify(ctx.projetos)}`,
     `Clientes: ${JSON.stringify(ctx.clientes)}`,
+    `Lançamentos recentes: ${JSON.stringify(ctx.lancamentosRecentes)}`,
     `Financeiro do mês atual: entradas R$${ctx.financeiroMes.entradas.toFixed(2)}, saídas R$${ctx.financeiroMes.saidas.toFixed(2)}.`,
     "",
     "Regras:",
     "- Pergunta informativa (eventos, projetos, financeiro) → responda em texto direto, sem tool.",
-    "- Pedido pra criar projeto ou lançar entrada/saída → SEMPRE chame a tool correspondente, nunca diga que já fez sem chamar a tool — quem executa de verdade é o painel, depois que o usuário confirmar.",
+    "- Pedido de criar/editar/excluir algo → SEMPRE chame a tool correspondente, nunca diga que já fez sem chamar a tool — quem executa de verdade é o painel, depois que o usuário confirmar.",
+    "- Editar: inclua só os campos que o usuário pediu pra mudar, não repita os que continuam iguais.",
+    "- Excluir: é uma ação permanente — deixe isso claro na sua resposta em texto antes/durante a chamada da tool.",
+    "- Pra identificar QUAL registro editar/excluir, use só os ids que aparecem no contexto acima (por nome/título/descrição batendo) — nunca invente um id. Se não tiver certeza de qual registro é, pergunte antes de chamar a tool.",
     "- Se faltar informação essencial pra tool (ex.: valor do lançamento), pergunte antes de chamar a tool.",
   ].join("\n");
 }

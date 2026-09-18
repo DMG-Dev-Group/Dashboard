@@ -11,7 +11,7 @@ import { Bot, Send, X } from "lucide-react";
  * confirmação explícita antes de gravar — ver useAssistant.ts.
  */
 export function AssistantWidget() {
-  const { clientes } = useStore();
+  const { projetos, eventos, clientes, receitas } = useStore();
   const { messages, send, loading, pending, confirmar, cancelar } = useAssistant();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -30,7 +30,7 @@ export function AssistantWidget() {
     await send(t);
   }
 
-  const acao = pending ? resumoAcao(pending, clientes) : null;
+  const acao = pending ? resumoAcao(pending, { projetos, eventos, clientes, receitas }) : null;
 
   return (
     <>
@@ -54,8 +54,8 @@ export function AssistantWidget() {
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
             {messages.length === 0 && (
               <p className="font-mono text-xs leading-relaxed text-dmg-text-3">
-                Pergunte sobre eventos, projetos ou financeiro — ou peça pra criar um projeto ou
-                lançar uma entrada/gasto.
+                Pergunte sobre eventos, projetos, clientes ou financeiro — ou peça pra criar, editar
+                ou excluir um projeto, evento, lançamento ou cliente.
               </p>
             )}
             {messages.map((m, i) => (
