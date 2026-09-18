@@ -30,9 +30,13 @@ export interface AssistantResponse {
   toolCall: AssistantToolCall | null;
 }
 
-// Modelo com tool-calling na Groq — rápido o bastante pra chat, suporta o
-// function-calling que as ações de escrita precisam.
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+// Modelo com tool-calling na Groq. Configurável por env var porque a Groq
+// descontinua modelo com alguma frequência (ex.: llama-3.3-70b-versatile,
+// usado antes, já não existe mais) — trocar o GROQ_MODEL na Vercel resolve
+// sem precisar de deploy de código. Confira a lista atual em
+// https://console.groq.com/docs/models (precisa suportar tool/function
+// calling) antes de trocar o fallback abaixo.
+const GROQ_MODEL = process.env.GROQ_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct";
 
 const TOOLS = [
   {
