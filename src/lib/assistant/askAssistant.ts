@@ -31,12 +31,17 @@ export interface AssistantResponse {
 }
 
 // Modelo com tool-calling na Groq. Configurável por env var porque a Groq
-// descontinua modelo com alguma frequência (ex.: llama-3.3-70b-versatile,
-// usado antes, já não existe mais) — trocar o GROQ_MODEL na Vercel resolve
-// sem precisar de deploy de código. Confira a lista atual em
-// https://console.groq.com/docs/models (precisa suportar tool/function
-// calling) antes de trocar o fallback abaixo.
-const GROQ_MODEL = process.env.GROQ_MODEL || "meta-llama/llama-4-scout-17b-16e-instruct";
+// descontinua modelo com alguma frequência — trocar o GROQ_MODEL na Vercel
+// resolve sem precisar de deploy de código.
+//
+// IMPORTANTE: nem todo modelo da Groq aceita a tool customizada que a gente
+// manda aqui ("local tool calling"). Os sistemas "groq/compound*" só aceitam
+// as ferramentas embutidas deles (busca web etc.) e recusam a nossa com 400.
+// Confirmado na doc oficial (https://console.groq.com/docs/tool-use/built-in-tools)
+// que openai/gpt-oss-120b e openai/gpt-oss-20b aceitam local tool calling —
+// por isso o fallback abaixo. Se trocar, confira essa compatibilidade, não só
+// se o modelo existe.
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
 
 const TOOLS = [
   {
