@@ -298,7 +298,7 @@ function payloadEditar(entidade: Entidade, args: Record<string, Json>, receitaAt
 /**
  * Assistente do dashboard: manda a pergunta + um resumo dos dados atuais
  * (eventos, projetos, clientes, lançamentos recentes, financeiro do mês)
- * pro servidor, que chama a Groq. Pergunta informativa volta como texto
+ * pro servidor, que chama a Gemini. Pergunta informativa volta como texto
  * puro. Pedido de ação (criar/editar/excluir projeto, evento, lançamento ou
  * cliente) volta como uma tool-call PENDENTE — só vira escrita de verdade no
  * Firestore depois que o usuário confirmar aqui no client (mesmo

@@ -72,18 +72,14 @@ export interface AssistantResponse {
   toolCall: AssistantToolCall | null;
 }
 
-// Modelo com tool-calling na Groq. Configurável por env var porque a Groq
-// descontinua modelo com alguma frequência — trocar o GROQ_MODEL na Vercel
-// resolve sem precisar de deploy de código.
-//
-// IMPORTANTE: nem todo modelo da Groq aceita a tool customizada que a gente
-// manda aqui ("local tool calling"). Os sistemas "groq/compound*" só aceitam
-// as ferramentas embutidas deles (busca web etc.) e recusam a nossa com 400.
-// Confirmado na doc oficial (https://console.groq.com/docs/tool-use/built-in-tools)
-// que openai/gpt-oss-120b e openai/gpt-oss-20b aceitam local tool calling —
-// por isso o fallback abaixo. Se trocar, confira essa compatibilidade, não só
-// se o modelo existe.
-const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
+// Gemini free tier (Google AI Studio), via o endpoint de compatibilidade
+// OpenAI da própria Gemini (https://ai.google.dev/gemini-api/docs/openai) —
+// por isso o corpo da requisição/resposta abaixo continua no formato
+// "OpenAI chat completions" (messages/tools/tool_choice, choices[].message)
+// mesmo apontando pra API do Google, sem precisar reescrever esse parsing.
+// Configurável por env var pelo mesmo motivo do antigo GROQ_MODEL: se o
+// Google descontinuar/renomear o modelo, troca na Vercel sem deploy.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 const idField = (desc: string) => ({ type: "string", description: desc }) as const;
 
@@ -454,35 +450,38 @@ function montaSystemPrompt(ctx: AssistantContext): string {
 export const askAssistant = createServerFn({ method: "POST" })
   .validator((data: { messages: AssistantMessage[]; contexto: AssistantContext }) => data)
   .handler(async ({ data }): Promise<AssistantResponse> => {
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return {
-        texto: "Trevor ainda não está configurado — falta a GROQ_API_KEY no servidor.",
+        texto: "Trevor ainda não está configurado — falta a GEMINI_API_KEY no servidor.",
         toolCall: null,
       };
     }
 
     let res: Response;
     try {
-      res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
+      res = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: GEMINI_MODEL,
+            messages: [
+              { role: "system", content: montaSystemPrompt(data.contexto) },
+              ...data.messages,
+            ],
+            tools: TOOLS,
+            tool_choice: "auto",
+            temperature: 0.3,
+          }),
         },
-        body: JSON.stringify({
-          model: GROQ_MODEL,
-          messages: [
-            { role: "system", content: montaSystemPrompt(data.contexto) },
-            ...data.messages,
-          ],
-          tools: TOOLS,
-          tool_choice: "auto",
-          temperature: 0.3,
-        }),
-      });
+      );
     } catch (err) {
-      console.error("[assistant] falha de rede ao chamar a Groq:", err);
+      console.error("[assistant] falha de rede ao chamar a Gemini:", err);
       return {
         texto: "Não consegui falar com o Trevor agora — tenta de novo em instantes.",
         toolCall: null,
@@ -491,8 +490,8 @@ export const askAssistant = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
-      console.error("[assistant] Groq respondeu erro:", res.status, errText);
-      // Mostra o motivo real (mensagem da Groq, sem a key) no próprio chat —
+      console.error("[assistant] Gemini respondeu erro:", res.status, errText);
+      // Mostra o motivo real (mensagem da Gemini, sem a key) no próprio chat —
       // sem isso, o único jeito de saber por que falhou seria olhar o log do
       // servidor, que quem estiver testando pode não ter acesso.
       let motivo = errText;

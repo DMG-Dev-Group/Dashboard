@@ -5,56 +5,52 @@ export interface TranscricaoResponse {
   erro: string | null;
 }
 
-// Mesma lógica do GROQ_MODEL em askAssistant.ts: configurável porque a Groq
-// descontinua modelo com frequência. whisper-large-v3-turbo é o modelo de
-// transcrição mais rápido da Groq no momento em que isso foi escrito.
-const GROQ_WHISPER_MODEL = process.env.GROQ_WHISPER_MODEL || "whisper-large-v3-turbo";
-
-function base64ParaBytes(base64: string): Uint8Array {
-  // Evita `Buffer` (só existe em runtime Node) — atob() é global tanto no
-  // browser quanto nos runtimes edge/Workers que este app pode rodar.
-  const binario = atob(base64);
-  const bytes = new Uint8Array(binario.length);
-  for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i);
-  return bytes;
-}
+// Mesmo modelo do chat em askAssistant.ts — o Gemini entende áudio nativamente
+// (multimodal) via generateContent, então não precisa de um modelo separado
+// tipo o Whisper da Groq. Configurável pelo mesmo motivo (troca sem deploy se
+// o Google descontinuar/renomear).
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 /**
- * Transcreve um áudio curto (comando de voz do Trevor) via Whisper da Groq.
- * Recebe o áudio já em base64 — createServerFn valida os dados como JSON, e
- * mandar multipart/FormData do client pra cá não é suportado, então o
- * blob vira base64 no client e vira Blob de novo aqui pra montar o
- * multipart que a API de transcrição da Groq espera.
+ * Transcreve um áudio curto (comando de voz do Trevor) via compreensão nativa
+ * de áudio do Gemini — diferente da Groq (endpoint dedicado de transcrição
+ * tipo Whisper, que espera multipart/FormData), o Gemini recebe o áudio
+ * inline como base64 dentro do próprio JSON de generateContent, então não
+ * precisa reconstruir Blob/FormData no servidor: o base64 que já chega do
+ * client vai direto no corpo da requisição.
  */
 export const transcreverAudio = createServerFn({ method: "POST" })
   .validator((data: { audioBase64: string; mimeType: string }) => data)
   .handler(async ({ data }): Promise<TranscricaoResponse> => {
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return {
         texto: null,
-        erro: "Trevor ainda não está configurado — falta a GROQ_API_KEY no servidor.",
+        erro: "Trevor ainda não está configurado — falta a GEMINI_API_KEY no servidor.",
       };
     }
 
-    const form = new FormData();
-    // `as ArrayBuffer`: sabemos que nunca é SharedArrayBuffer (o Uint8Array
-    // acima foi criado por nós mesmos), mas o tipo de .buffer é o mais amplo
-    // ArrayBufferLike, que o TS mais recente não aceita como BlobPart.
-    const arquivo = new Blob([base64ParaBytes(data.audioBase64).buffer as ArrayBuffer], {
-      type: data.mimeType,
-    });
-    form.append("file", arquivo, "audio.webm");
-    form.append("model", GROQ_WHISPER_MODEL);
-    form.append("language", "pt");
-
     let res: Response;
     try {
-      res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}` },
-        body: form,
-      });
+      res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: "Transcreva o áudio a seguir, em português do Brasil. Responda só com o texto transcrito, sem nenhum comentário, formatação ou pontuação extra além da fala em si.",
+                  },
+                  { inline_data: { mime_type: data.mimeType, data: data.audioBase64 } },
+                ],
+              },
+            ],
+          }),
+        },
+      );
     } catch (err) {
       console.error("[assistant] falha de rede ao transcrever áudio:", err);
       return {
@@ -65,7 +61,7 @@ export const transcreverAudio = createServerFn({ method: "POST" })
 
     if (!res.ok) {
       const errText = await res.text().catch(() => "");
-      console.error("[assistant] Groq respondeu erro na transcrição:", res.status, errText);
+      console.error("[assistant] Gemini respondeu erro na transcrição:", res.status, errText);
       let motivo = errText;
       try {
         const parsed = JSON.parse(errText) as { error?: { message?: string } };
@@ -79,8 +75,10 @@ export const transcreverAudio = createServerFn({ method: "POST" })
       };
     }
 
-    const json = (await res.json()) as { text?: string };
-    const texto = json.text?.trim();
+    const json = (await res.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const texto = json.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
     return {
       texto: texto || null,
       erro: texto ? null : "Não peguei nada no áudio — tenta falar de novo.",
