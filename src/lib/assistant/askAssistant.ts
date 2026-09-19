@@ -13,6 +13,8 @@ export interface AssistantContext {
   hoje: string;
   eventosProximos: { id: string; titulo: string; data: string; hora?: string; tipo?: string }[];
   projetos: { id: string; nome: string; status: string; clienteId?: string }[];
+  /** Só os projetos pessoais do usuário logado — são privados por natureza. */
+  projetosPessoais: { id: string; nome: string; status: string }[];
   clientes: { id: string; nome: string }[];
   /** Últimos lançamentos (não só o mês atual) — precisa ter id pra editar/excluir um específico. */
   lancamentosRecentes: {
@@ -25,6 +27,11 @@ export interface AssistantContext {
     origem?: string;
   }[];
   financeiroMes: { entradas: number; saidas: number };
+  /** Leads vêm do site — só dá pra excluir/marcar como lido/converter, nunca criar ou editar campo. */
+  leadsRecentes: { id: string; nome: string; categoria: string; lida: boolean }[];
+  /** Texto atual dos dois quadros de notas — pra o Trevor conseguir ler, não só escrever. */
+  notaEquipe: string;
+  notaPessoal: string;
 }
 
 /**
@@ -37,6 +44,9 @@ export type AssistantToolName =
   | "criar_projeto"
   | "editar_projeto"
   | "excluir_projeto"
+  | "criar_projeto_pessoal"
+  | "editar_projeto_pessoal"
+  | "excluir_projeto_pessoal"
   | "criar_evento"
   | "editar_evento"
   | "excluir_evento"
@@ -45,7 +55,11 @@ export type AssistantToolName =
   | "excluir_lancamento"
   | "criar_cliente"
   | "editar_cliente"
-  | "excluir_cliente";
+  | "excluir_cliente"
+  | "adicionar_nota"
+  | "excluir_lead"
+  | "marcar_lead_lida"
+  | "converter_lead";
 
 export interface AssistantToolCall {
   id: string;
@@ -131,6 +145,61 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: { id: idField("id do projeto, da lista de projetos do contexto") },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "criar_projeto_pessoal",
+      description:
+        "Cria um projeto pessoal do usuário atual — iniciativa própria, privada, sem cliente/valor/responsável (não é projeto de cliente).",
+      parameters: {
+        type: "object",
+        properties: {
+          nome: { type: "string" },
+          status: { type: "string", enum: ["plan", "dev", "producao", "done"] },
+          stack: { type: "string" },
+          repo: { type: "string" },
+          url: { type: "string" },
+          desc: { type: "string" },
+        },
+        required: ["nome"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "editar_projeto_pessoal",
+      description:
+        "Muda um ou mais campos de um projeto pessoal já existente. Inclua só os campos que o usuário pediu pra mudar.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do projeto pessoal, da lista de projetos pessoais do contexto"),
+          nome: { type: "string" },
+          status: { type: "string", enum: ["plan", "dev", "producao", "done"] },
+          stack: { type: "string" },
+          repo: { type: "string" },
+          url: { type: "string" },
+          desc: { type: "string" },
+        },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "excluir_projeto_pessoal",
+      description: "Exclui um projeto pessoal permanentemente. Ação irreversível.",
+      parameters: {
+        type: "object",
+        properties: {
+          id: idField("id do projeto pessoal, da lista de projetos pessoais do contexto"),
+        },
         required: ["id"],
       },
     },
@@ -292,6 +361,64 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "adicionar_nota",
+      description:
+        "Acrescenta um texto ao quadro de notas (equipe ou pessoal). Só adiciona ao final do que já existe — não apaga nem reescreve o que já está lá.",
+      parameters: {
+        type: "object",
+        properties: {
+          quadro: {
+            type: "string",
+            enum: ["equipe", "pessoal"],
+            description:
+              "equipe = quadro compartilhado com todo mundo; pessoal = só do usuário atual",
+          },
+          texto: { type: "string", description: "texto a acrescentar" },
+        },
+        required: ["quadro", "texto"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "excluir_lead",
+      description: "Exclui um lead (contato vindo do site) permanentemente. Ação irreversível.",
+      parameters: {
+        type: "object",
+        properties: { id: idField("id do lead, da lista de leads recentes do contexto") },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "marcar_lead_lida",
+      description: "Marca um lead como lido/visto.",
+      parameters: {
+        type: "object",
+        properties: { id: idField("id do lead, da lista de leads recentes do contexto") },
+        required: ["id"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "converter_lead",
+      description:
+        "Converte um lead em cliente + projeto — cria um cliente novo a partir dos dados do lead e um projeto vinculado a ele (mesma ação do botão 'adicionar aos projetos' na tela de leads).",
+      parameters: {
+        type: "object",
+        properties: { id: idField("id do lead, da lista de leads recentes do contexto") },
+        required: ["id"],
+      },
+    },
+  },
 ] as const;
 
 function montaSystemPrompt(ctx: AssistantContext): string {
@@ -303,17 +430,24 @@ function montaSystemPrompt(ctx: AssistantContext): string {
     "Dados atuais do painel (só isso — nunca invente dado que não está aqui, e nunca invente um id):",
     `Eventos próximos: ${JSON.stringify(ctx.eventosProximos)}`,
     `Projetos: ${JSON.stringify(ctx.projetos)}`,
+    `Projetos pessoais (privados do usuário atual): ${JSON.stringify(ctx.projetosPessoais)}`,
     `Clientes: ${JSON.stringify(ctx.clientes)}`,
     `Lançamentos recentes: ${JSON.stringify(ctx.lancamentosRecentes)}`,
     `Financeiro do mês atual: entradas R$${ctx.financeiroMes.entradas.toFixed(2)}, saídas R$${ctx.financeiroMes.saidas.toFixed(2)}.`,
+    `Leads recentes (contatos vindos do site): ${JSON.stringify(ctx.leadsRecentes)}`,
+    `Nota da equipe (quadro compartilhado): ${JSON.stringify(ctx.notaEquipe)}`,
+    `Nota pessoal (só do usuário atual): ${JSON.stringify(ctx.notaPessoal)}`,
     "",
     "Regras:",
-    "- Pergunta informativa (eventos, projetos, financeiro) → responda em texto direto, sem tool.",
+    "- Pergunta informativa (eventos, projetos, financeiro, notas, leads) → responda em texto direto, sem tool.",
     "- Pedido de criar/editar/excluir algo → SEMPRE chame a tool correspondente, nunca diga que já fez sem chamar a tool — quem executa de verdade é o painel, depois que o usuário confirmar.",
     "- Editar: inclua só os campos que o usuário pediu pra mudar, não repita os que continuam iguais.",
     "- Excluir: é uma ação permanente — deixe isso claro na sua resposta em texto antes/durante a chamada da tool.",
     "- Pra identificar QUAL registro editar/excluir, use só os ids que aparecem no contexto acima (por nome/título/descrição batendo) — nunca invente um id. Se não tiver certeza de qual registro é, pergunte antes de chamar a tool.",
     "- Se faltar informação essencial pra tool (ex.: valor do lançamento), pergunte antes de chamar a tool.",
+    "- Lead vem do site — nunca crie ou edite campo de lead. Só dá pra excluir_lead, marcar_lead_lida ou converter_lead (vira cliente + projeto).",
+    "- Nota (adicionar_nota) é só de acrescentar — nunca apague ou reescreva o texto existente, e nunca invente o texto atual, use o que está no contexto.",
+    "- Projeto pessoal é diferente de projeto de cliente: não tem cliente, valor nem responsável. Não confunda as tools de projeto com as de projeto_pessoal.",
   ].join("\n");
 }
 

@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store/StoreProvider";
+import { useAuth } from "@/features/auth/AuthProvider";
+import { useProjetosPessoais } from "../projetosPessoais/useProjetosPessoais";
+import { useNotaBoard } from "../notas/useNotaBoard";
 import {
   askAssistant,
   type AssistantContext,
@@ -13,9 +16,11 @@ import {
   receitaVeioDoBanco,
   type Cliente,
   type Evento,
+  type Lead,
   type ModeloCobranca,
   type Projeto,
   type ProjectStatus,
+  type ProjetoPessoal,
   type Receita,
 } from "@/lib/store/types";
 
@@ -25,7 +30,11 @@ export interface ChatEntry {
 }
 
 type Acao = "criar" | "editar" | "excluir";
-type Entidade = "projeto" | "evento" | "lancamento" | "cliente";
+/** "projeto_pessoal" e "lead" não passam pelo dispatch genérico embaixo
+ * (COLECAO_POR_ENTIDADE/payloadCriar) — projeto_pessoal usa o hook bespoke
+ * useProjetosPessoais, e lead só aceita excluir (nunca criar/editar). Os dois
+ * ainda entram em ROTULO_ENTIDADE/nomeRegistro pra reaproveitar o resumo. */
+type Entidade = "projeto" | "projeto_pessoal" | "evento" | "lancamento" | "cliente" | "lead";
 
 /** Nome da tool segue `${acao}_${entidade}` — todo o dispatch abaixo é
  * genérico em cima disso, então uma tool nova só precisa seguir a convenção
@@ -34,6 +43,11 @@ function parseTool(nome: AssistantToolCall["nome"]): { acao: Acao; entidade: Ent
   const i = nome.indexOf("_");
   return { acao: nome.slice(0, i) as Acao, entidade: nome.slice(i + 1) as Entidade };
 }
+
+/** Só as entidades que caem direto numa coleção Firestore genérica —
+ * projeto_pessoal (hook bespoke) e lead (só excluir) são tratados à parte em
+ * confirmar(), então não entram aqui. */
+type EntidadeGenerica = "projeto" | "evento" | "lancamento" | "cliente";
 
 const COLECAO_POR_ENTIDADE = {
   projeto: "projetos",
@@ -44,13 +58,15 @@ const COLECAO_POR_ENTIDADE = {
 
 const ROTULO_ENTIDADE: Record<Entidade, string> = {
   projeto: "Projeto",
+  projeto_pessoal: "Projeto pessoal",
   evento: "Evento",
   lancamento: "Lançamento",
   cliente: "Cliente",
+  lead: "Lead",
 };
 
 /** `tipo` do log de atividades — mesma convenção que os modais normais já usam. */
-const LOG_TIPO: Record<Entidade, string> = {
+const LOG_TIPO: Record<EntidadeGenerica, string> = {
   projeto: "projeto",
   evento: "calendario",
   lancamento: "financeiro",
@@ -59,9 +75,11 @@ const LOG_TIPO: Record<Entidade, string> = {
 
 interface Listas {
   projetos: Pick<Projeto, "id" | "nome">[];
+  projetosPessoais: Pick<ProjetoPessoal, "id" | "nome">[];
   eventos: Pick<Evento, "id" | "titulo">[];
   clientes: Pick<Cliente, "id" | "nome">[];
   receitas: Pick<Receita, "id" | "desc" | "origem">[];
+  leads: Pick<Lead, "id" | "nome">[];
 }
 
 /** Campos que um lançamento sincronizado do banco não aceita editar — mesma
@@ -72,12 +90,16 @@ function nomeRegistro(entidade: Entidade, id: string, listas: Listas): string {
   switch (entidade) {
     case "projeto":
       return listas.projetos.find((p) => p.id === id)?.nome ?? "projeto";
+    case "projeto_pessoal":
+      return listas.projetosPessoais.find((p) => p.id === id)?.nome ?? "projeto pessoal";
     case "evento":
       return listas.eventos.find((e) => e.id === id)?.titulo ?? "evento";
     case "lancamento":
       return listas.receitas.find((r) => r.id === id)?.desc ?? "lançamento";
     case "cliente":
       return listas.clientes.find((c) => c.id === id)?.nome ?? "cliente";
+    case "lead":
+      return listas.leads.find((l) => l.id === id)?.nome ?? "lead";
   }
 }
 
@@ -100,6 +122,9 @@ const CAMPO_LABEL: Record<string, string> = {
   instagram: "Instagram",
   empresa: "Empresa",
   nascimento: "Nascimento",
+  stack: "Stack",
+  repo: "Repositório",
+  url: "URL",
 };
 
 function formataValorCampo(campo: string, valor: Json, listas: Listas): string {
@@ -118,6 +143,28 @@ export function resumoAcao(
   call: AssistantToolCall,
   listas: Listas,
 ): { titulo: string; linhas: string[] } {
+  // Essas 3 tools não seguem a convenção `${criar|editar|excluir}_entidade`
+  // (adicionar/marcar/converter não são um dos 3 verbos), então são tratadas
+  // à parte, antes do parseTool genérico.
+  if (call.nome === "adicionar_nota") {
+    const quadro = call.args.quadro === "pessoal" ? "Pessoal" : "Equipe";
+    return {
+      titulo: "Adicionar nota",
+      linhas: [`Quadro: ${quadro}`, String(call.args.texto ?? "")],
+    };
+  }
+  if (call.nome === "marcar_lead_lida") {
+    const label = listas.leads.find((l) => l.id === call.args.id)?.nome ?? "lead";
+    return { titulo: "Marcar lead como lida", linhas: [`"${label}"`] };
+  }
+  if (call.nome === "converter_lead") {
+    const label = listas.leads.find((l) => l.id === call.args.id)?.nome ?? "lead";
+    return {
+      titulo: "Converter lead em cliente + projeto",
+      linhas: [`"${label}" vira um cliente novo + um projeto vinculado a ele.`],
+    };
+  }
+
   const { acao, entidade } = parseTool(call.nome);
   const rotulo = ROTULO_ENTIDADE[entidade].toLowerCase();
   const args = call.args;
@@ -165,7 +212,7 @@ export function resumoAcao(
 }
 
 function payloadCriar(
-  entidade: Entidade,
+  entidade: EntidadeGenerica,
   args: Record<string, Json>,
 ): { payload: object; label: string } {
   switch (entidade) {
@@ -258,10 +305,24 @@ function payloadEditar(entidade: Entidade, args: Record<string, Json>, receitaAt
  * add/update/remove que os modais normais usam).
  */
 export function useAssistant() {
-  const { eventos, projetos, clientes, receitas, add, update, remove, log } = useStore();
+  const { eventos, projetos, clientes, receitas, leads, add, update, remove, log } = useStore();
+  const { user } = useAuth();
+  const uid = user?.uid ?? "anon";
+  const pessoal = useProjetosPessoais(uid);
+  const notaEquipe = useNotaBoard("dashboard");
+  const notaPessoal = useNotaBoard(`user:${uid}`);
   const [messages, setMessages] = useState<ChatEntry[]>([]);
   const [pending, setPending] = useState<AssistantToolCall | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const listas: Listas = {
+    projetos,
+    projetosPessoais: pessoal.projetos,
+    eventos,
+    clientes,
+    receitas,
+    leads,
+  };
 
   function buildContexto(): AssistantContext {
     const hoje = isoDay(new Date());
@@ -289,6 +350,9 @@ export function useAssistant() {
         projetoId: r.projetoId,
         origem: r.origem,
       }));
+    const leadsRecentes = leads
+      .slice(0, 15)
+      .map((l) => ({ id: l.id, nome: l.nome, categoria: l.categoria, lida: !!l.lida }));
     return {
       hoje,
       eventosProximos,
@@ -298,9 +362,13 @@ export function useAssistant() {
         status: p.status,
         clienteId: p.clienteId,
       })),
+      projetosPessoais: pessoal.projetos.map((p) => ({ id: p.id, nome: p.nome, status: p.status })),
       clientes: clientes.map((c) => ({ id: c.id, nome: c.nome })),
       lancamentosRecentes,
       financeiroMes: { entradas, saidas },
+      leadsRecentes,
+      notaEquipe: notaEquipe.texto,
+      notaPessoal: notaPessoal.texto,
     };
   }
 
@@ -332,11 +400,146 @@ export function useAssistant() {
 
   async function confirmar() {
     if (!pending) return;
-    const { acao, entidade } = parseTool(pending.nome);
     const args = pending.args;
-    const colecao = COLECAO_POR_ENTIDADE[entidade];
-    const listas = { projetos, eventos, clientes, receitas };
     try {
+      // Mesmo motivo do early-return em resumoAcao: essas 3 tools não seguem
+      // a convenção `${criar|editar|excluir}_entidade`, então são resolvidas
+      // à parte, antes de entrar no parseTool + dispatch genérico abaixo.
+      if (pending.nome === "adicionar_nota") {
+        const board = args.quadro === "pessoal" ? notaPessoal : notaEquipe;
+        const rotuloQuadro = args.quadro === "pessoal" ? "pessoal" : "da equipe";
+        const textoNovo = String(args.texto ?? "").trim();
+        if (!textoNovo) {
+          setMessages((cur) => [
+            ...cur,
+            { role: "assistant", content: "Não veio texto pra acrescentar na nota." },
+          ]);
+          return;
+        }
+        board.setTexto(board.texto ? `${board.texto}\n${textoNovo}` : textoNovo);
+        board.flush();
+        setMessages((cur) => [
+          ...cur,
+          { role: "assistant", content: `✓ Nota acrescentada ao quadro ${rotuloQuadro}.` },
+        ]);
+        dmgToast.success("Feito");
+        return;
+      }
+
+      if (pending.nome === "marcar_lead_lida") {
+        const id = String(args.id ?? "");
+        const label = nomeRegistro("lead", id, listas);
+        await update("leads", id, { lida: true });
+        setMessages((cur) => [
+          ...cur,
+          { role: "assistant", content: `✓ Lead "${label}" marcado como lido.` },
+        ]);
+        dmgToast.success("Feito");
+        return;
+      }
+
+      if (pending.nome === "converter_lead") {
+        const id = String(args.id ?? "");
+        const lead = leads.find((l) => l.id === id);
+        if (!lead) {
+          setMessages((cur) => [
+            ...cur,
+            { role: "assistant", content: "Não achei mais esse lead — pode ter sido excluído." },
+          ]);
+          return;
+        }
+        const clienteId = await add("clientes", {
+          nome: lead.nome,
+          celular: lead.whatsapp,
+          email: lead.email,
+          ...(lead.empresa ? { empresa: lead.empresa } : {}),
+        });
+        await log(
+          `<b>Cliente</b> — ${lead.nome} adicionado a partir de um lead do site`,
+          "cliente",
+        );
+        await add("projetos", {
+          nome: [lead.categoria, lead.item].filter(Boolean).join(" — "),
+          tipo: lead.categoria,
+          clienteId,
+          status: "plan",
+          progresso: 0,
+          valor: lead.sobOrcamento ? 0 : (lead.total ?? lead.subtotal ?? 0),
+          desc: lead.comentario ?? "",
+        });
+        await log(`<b>Projeto</b> — criado a partir do lead de ${lead.nome}`, "projeto");
+        setMessages((cur) => [
+          ...cur,
+          { role: "assistant", content: `✓ Lead "${lead.nome}" convertido em cliente + projeto.` },
+        ]);
+        dmgToast.success("Feito");
+        return;
+      }
+
+      const { acao, entidade } = parseTool(pending.nome);
+
+      if (entidade === "projeto_pessoal") {
+        if (acao === "criar") {
+          const nome = String(args.nome ?? "Novo projeto pessoal");
+          await pessoal.addProjeto({
+            nome,
+            status: (args.status as ProjectStatus) ?? "plan",
+            stack: args.stack ? String(args.stack) : undefined,
+            repo: args.repo ? String(args.repo) : undefined,
+            url: args.url ? String(args.url) : undefined,
+            desc: args.desc ? String(args.desc) : undefined,
+          });
+          setMessages((cur) => [
+            ...cur,
+            { role: "assistant", content: `✓ Projeto pessoal "${nome}" criado.` },
+          ]);
+        } else if (acao === "editar") {
+          const id = String(args.id ?? "");
+          const label = nomeRegistro(entidade, id, listas);
+          const patch = payloadEditar(entidade, args);
+          if (Object.keys(patch).length === 0) {
+            setMessages((cur) => [
+              ...cur,
+              {
+                role: "assistant",
+                content: `Não deu pra editar "${label}" — nenhum campo válido veio.`,
+              },
+            ]);
+            return;
+          }
+          await pessoal.updateProjeto(id, patch as Partial<ProjetoPessoal>);
+          setMessages((cur) => [
+            ...cur,
+            { role: "assistant", content: `✓ Projeto pessoal "${label}" atualizado.` },
+          ]);
+        } else {
+          const id = String(args.id ?? "");
+          const label = nomeRegistro(entidade, id, listas);
+          await pessoal.removeProjeto(id);
+          setMessages((cur) => [
+            ...cur,
+            { role: "assistant", content: `✓ Projeto pessoal "${label}" excluído.` },
+          ]);
+        }
+        dmgToast.success("Feito");
+        return;
+      }
+
+      if (entidade === "lead") {
+        // Só excluir_lead chega aqui — não existe tool de criar/editar lead.
+        const id = String(args.id ?? "");
+        const label = nomeRegistro(entidade, id, listas);
+        await remove("leads", id);
+        await log(`<b>Lead</b> — pedido de ${label} excluído`, "lead");
+        setMessages((cur) => [
+          ...cur,
+          { role: "assistant", content: `✓ Lead "${label}" excluído.` },
+        ]);
+        dmgToast.success("Feito");
+        return;
+      }
+
+      const colecao = COLECAO_POR_ENTIDADE[entidade];
       if (acao === "criar") {
         const { payload, label } = payloadCriar(entidade, args);
         await add(colecao, payload as never);
@@ -405,5 +608,5 @@ export function useAssistant() {
     setMessages((cur) => [...cur, { role: "assistant", content: "Ação cancelada." }]);
   }
 
-  return { messages, send, loading, pending, confirmar, cancelar };
+  return { messages, send, loading, pending, confirmar, cancelar, listas };
 }
