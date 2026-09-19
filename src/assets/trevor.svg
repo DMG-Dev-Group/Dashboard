@@ -1,0 +1,48 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mohawk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffa295"/>
+      <stop offset="0.3" stop-color="#ff4a3c"/>
+      <stop offset="0.6" stop-color="#c0181a"/>
+      <stop offset="1" stop-color="#7f1416"/>
+    </linearGradient>
+    <radialGradient id="bgGlow" cx="0.5" cy="0.3" r="0.9">
+      <stop offset="0" stop-color="#161618"/>
+      <stop offset="1" stop-color="#0a0a0a"/>
+    </radialGradient>
+  </defs>
+
+  <!-- badge bg -->
+  <rect width="128" height="128" rx="26" fill="url(#bgGlow)"/>
+  <rect x="3" y="3" width="122" height="122" rx="23" fill="none" stroke="#7f1416" stroke-opacity="0.5" stroke-width="2"/>
+
+  <!-- jacket collar -->
+  <path d="M40,108 L50,92 L78,92 L88,108 L94,124 L34,124 Z" fill="#161618" stroke="#000" stroke-width="1"/>
+  <circle cx="46" cy="112" r="2.6" fill="#ff4d4f"/>
+  <circle cx="82" cy="112" r="2.6" fill="#ff4d4f"/>
+
+  <!-- face -->
+  <polygon points="46,40 82,40 90,58 80,92 64,101 48,92 38,58" fill="#d8d2cb"/>
+  <!-- flat shadow half -->
+  <polygon points="64,40 82,40 90,58 80,92 64,101" fill="#a49e97"/>
+
+  <!-- mohawk: spikes irregulares, mais agressivos -->
+  <path d="M37,46 L40,20 L46,45 L50,6 L58,44 L63,16 L69,44 L75,4 L80,45 L86,24 L90,50 L35,50 Z" fill="url(#mohawk)" stroke="#3a0000" stroke-width="1" stroke-linejoin="round"/>
+
+  <!-- eyebrows: v de atitude -->
+  <path d="M44,58 L58,54" stroke="#141414" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M70,53 L84,58" stroke="#141414" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- eyes -->
+  <ellipse cx="52" cy="67" rx="7.5" ry="6" fill="#fdfdfd"/>
+  <circle cx="53.5" cy="68" r="3.6" fill="#141414"/>
+  <circle cx="54.6" cy="66.6" r="1" fill="#fff"/>
+  <!-- squint eye (shadow side) -->
+  <path d="M70,69 Q77,64 84,69" fill="none" stroke="#141414" stroke-width="3.2" stroke-linecap="round"/>
+
+  <!-- scar -->
+  <path d="M80,60 L86,74" fill="none" stroke="#ff4d4f" stroke-width="1.8" stroke-linecap="round"/>
+
+  <!-- smirk mouth -->
+  <path d="M54,88 Q64,93 74,86" fill="none" stroke="#141414" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

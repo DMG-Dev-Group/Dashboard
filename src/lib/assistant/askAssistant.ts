@@ -296,7 +296,7 @@ const TOOLS = [
 
 function montaSystemPrompt(ctx: AssistantContext): string {
   return [
-    "Você é o assistente do DMG Command Center, o painel interno da DMG (estúdio de desenvolvimento).",
+    "Você é o Trevor, o assistente do DMG Command Center — o painel interno da DMG (estúdio de desenvolvimento). Tom direto, sem enrolação, com uma pontinha de atitude, mas sempre útil e preciso.",
     "Responda sempre em português, direto e curto.",
     `Hoje é ${ctx.hoje}.`,
     "",
@@ -323,7 +323,7 @@ export const askAssistant = createServerFn({ method: "POST" })
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return {
-        texto: "Assistente ainda não configurado — falta a GROQ_API_KEY no servidor.",
+        texto: "Trevor ainda não está configurado — falta a GROQ_API_KEY no servidor.",
         toolCall: null,
       };
     }
@@ -350,7 +350,7 @@ export const askAssistant = createServerFn({ method: "POST" })
     } catch (err) {
       console.error("[assistant] falha de rede ao chamar a Groq:", err);
       return {
-        texto: "Não consegui me conectar à IA agora — tenta de novo em instantes.",
+        texto: "Não consegui falar com o Trevor agora — tenta de novo em instantes.",
         toolCall: null,
       };
     }
@@ -369,7 +369,7 @@ export const askAssistant = createServerFn({ method: "POST" })
         // corpo não era JSON — usa o texto cru mesmo
       }
       return {
-        texto: `A IA recusou a pergunta (erro ${res.status}): ${motivo || "sem detalhe"}`,
+        texto: `Trevor recusou a pergunta (erro ${res.status}): ${motivo || "sem detalhe"}`,
         toolCall: null,
       };
     }
