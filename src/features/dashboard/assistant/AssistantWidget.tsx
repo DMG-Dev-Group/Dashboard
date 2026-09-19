@@ -2,8 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useStore } from "@/lib/store/StoreProvider";
 import { useAssistant, resumoAcao } from "./useAssistant";
 import { cn } from "@/lib/utils";
-import { Send, X } from "lucide-react";
-import trevorFace from "@/assets/trevor.svg";
+import { Bot, Send, X } from "lucide-react";
 
 /**
  * Trevor — assistente flutuante do dashboard — disponível em qualquer tela,
@@ -47,19 +46,15 @@ export function AssistantWidget() {
       <button
         onClick={() => setOpen((o) => !o)}
         title="Trevor"
-        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border border-dmg-red-dark bg-dmg-bg shadow-[0_8px_24px_rgba(0,0,0,.4)] hover:border-dmg-red"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-dmg-red-dark bg-dmg-red-solid text-white shadow-[0_8px_24px_rgba(0,0,0,.4)] hover:bg-dmg-red-hover"
       >
-        {open ? (
-          <X className="h-5 w-5 text-dmg-red" />
-        ) : (
-          <img src={trevorFace} alt="Trevor" className="h-full w-full object-cover" />
-        )}
+        {open ? <X className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
       </button>
 
       {open && (
         <div className="fixed bottom-20 right-5 z-40 flex h-[min(480px,70vh)] w-[360px] max-w-[calc(100vw-2.5rem)] flex-col rounded-lg border border-dmg-border bg-dmg-surface shadow-[0_16px_48px_rgba(0,0,0,.5)]">
           <div className="flex items-center gap-2 border-b border-dmg-border px-4 py-3">
-            <img src={trevorFace} alt="" className="h-6 w-6 rounded-full" />
+            <Bot className="h-4 w-4 text-dmg-red" />
             <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-2">
               Trevor
             </span>
