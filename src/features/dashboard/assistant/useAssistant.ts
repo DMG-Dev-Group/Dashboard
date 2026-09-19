@@ -323,7 +323,7 @@ export function useAssistant() {
       console.error("[assistant]", err);
       setMessages((cur) => [
         ...cur,
-        { role: "assistant", content: "Deu erro ao falar com a IA — tenta de novo." },
+        { role: "assistant", content: "Deu erro ao falar com o Trevor — tenta de novo." },
       ]);
     } finally {
       setLoading(false);
@@ -341,7 +341,7 @@ export function useAssistant() {
         const { payload, label } = payloadCriar(entidade, args);
         await add(colecao, payload as never);
         await log(
-          `<b>${ROTULO_ENTIDADE[entidade]}</b> — ${label} criado(a) pelo assistente`,
+          `<b>${ROTULO_ENTIDADE[entidade]}</b> — ${label} criado(a) pelo Trevor`,
           LOG_TIPO[entidade],
         );
         setMessages((cur) => [
@@ -368,7 +368,7 @@ export function useAssistant() {
         }
         await update(colecao, id, patch as never);
         await log(
-          `<b>${ROTULO_ENTIDADE[entidade]}</b> — ${label} atualizado(a) pelo assistente`,
+          `<b>${ROTULO_ENTIDADE[entidade]}</b> — ${label} atualizado(a) pelo Trevor`,
           LOG_TIPO[entidade],
         );
         setMessages((cur) => [
@@ -383,7 +383,7 @@ export function useAssistant() {
         const label = nomeRegistro(entidade, id, listas);
         await remove(colecao, id);
         await log(
-          `<b>${ROTULO_ENTIDADE[entidade]}</b> — ${label} excluído(a) pelo assistente`,
+          `<b>${ROTULO_ENTIDADE[entidade]}</b> — ${label} excluído(a) pelo Trevor`,
           LOG_TIPO[entidade],
         );
         setMessages((cur) => [
