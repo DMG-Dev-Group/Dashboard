@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useStore } from "@/lib/store/StoreProvider";
 import { useAssistant, resumoAcao } from "./useAssistant";
 import { transcreverAudio } from "@/lib/assistant/transcreverAudio";
 import { dmgToast } from "@/lib/toast";
@@ -27,8 +26,7 @@ function blobParaBase64(blob: Blob): Promise<string> {
  * pede confirmação explícita antes de gravar — ver useAssistant.ts.
  */
 export function AssistantWidget() {
-  const { projetos, eventos, clientes, receitas } = useStore();
-  const { messages, send, loading, pending, confirmar, cancelar } = useAssistant();
+  const { messages, send, loading, pending, confirmar, cancelar, listas } = useAssistant();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [gravando, setGravando] = useState(false);
@@ -92,7 +90,10 @@ export function AssistantWidget() {
         const audioBase64 = await blobParaBase64(blob);
         const resp = await transcreverAudio({ data: { audioBase64, mimeType: blob.type } });
         if (resp.texto) {
-          setInput((atual) => (atual ? `${atual} ${resp.texto}` : resp.texto!));
+          // Manda direto — sem pedir pra revisar/clicar em enviar de novo.
+          const textoFinal = input ? `${input} ${resp.texto}` : resp.texto;
+          setInput("");
+          await send(textoFinal);
         } else if (resp.erro) {
           dmgToast.error(resp.erro);
         }
@@ -108,7 +109,7 @@ export function AssistantWidget() {
     setGravando(true);
   }
 
-  const acao = pending ? resumoAcao(pending, { projetos, eventos, clientes, receitas }) : null;
+  const acao = pending ? resumoAcao(pending, listas) : null;
   const inputBloqueado = loading || !!pending || gravando || transcrevendo;
 
   return (
@@ -137,9 +138,10 @@ export function AssistantWidget() {
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
             {messages.length === 0 && (
               <p className="font-mono text-xs leading-relaxed text-dmg-text-3">
-                E aí. Pergunta sobre eventos, projetos, clientes ou financeiro — ou manda criar,
-                editar ou excluir um projeto, evento, lançamento ou cliente. Também dá pra falar em
-                vez de digitar.
+                E aí. Pergunta sobre eventos, projetos, clientes, financeiro, notas ou leads — ou
+                manda criar, editar ou excluir projeto (de cliente ou pessoal), evento, lançamento
+                ou cliente, acrescentar nota, excluir/marcar/converter um lead. Também dá pra falar
+                em vez de digitar.
               </p>
             )}
             {messages.map((m, i) => (
