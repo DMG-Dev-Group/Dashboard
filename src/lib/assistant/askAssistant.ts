@@ -79,7 +79,7 @@ export interface AssistantResponse {
 // mesmo apontando pra API do Google, sem precisar reescrever esse parsing.
 // Configurável por env var pelo mesmo motivo do antigo GROQ_MODEL: se o
 // Google descontinuar/renomear o modelo, troca na Vercel sem deploy.
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
 const idField = (desc: string) => ({ type: "string", description: desc }) as const;
 

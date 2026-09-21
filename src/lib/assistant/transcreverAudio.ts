@@ -9,7 +9,7 @@ export interface TranscricaoResponse {
 // (multimodal) via generateContent, então não precisa de um modelo separado
 // tipo o Whisper da Groq. Configurável pelo mesmo motivo (troca sem deploy se
 // o Google descontinuar/renomear).
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
 /**
  * Transcreve um áudio curto (comando de voz do Trevor) via compreensão nativa
