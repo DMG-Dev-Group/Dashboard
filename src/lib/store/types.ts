@@ -9,6 +9,10 @@ export interface Todo {
 export interface Projeto {
   id: string;
   nome: string;
+  /** Referências alternativas usadas por integrações para localizar o projeto canônico. */
+  aliases?: string[];
+  /** Frentes de trabalho que pertencem a este mesmo projeto. */
+  frentes?: string[];
   tipo?: string;
   clienteId?: string;
   resp?: string;
