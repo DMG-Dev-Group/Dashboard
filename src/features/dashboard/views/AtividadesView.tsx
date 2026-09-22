@@ -1,6 +1,6 @@
 import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
-import { tempoRelativo } from "@/lib/format";
+import { fmtAtividadeTexto, fmtDataHoraCompleta } from "@/lib/format";
 
 export function AtividadesView() {
   const { atividades } = useStore();
@@ -22,8 +22,11 @@ export function AtividadesView() {
                   className="text-sm leading-relaxed text-dmg-text-2 [&_b]:font-semibold [&_b]:text-dmg-text"
                   dangerouslySetInnerHTML={{ __html: a.texto }}
                 />
-                <span className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3">
-                  {tempoRelativo(a.ts)}
+                <span
+                  className="mt-0.5 block font-mono text-[10px] uppercase tracking-[0.14em] text-dmg-text-3"
+                  title={fmtDataHoraCompleta(a.ts)}
+                >
+                  {fmtAtividadeTexto(a.ts)}
                 </span>
               </div>
             </div>

@@ -3,14 +3,17 @@ import { useStore } from "@/lib/store/StoreProvider";
 import { Panel, PanelTitle } from "../components/Panel";
 import { StatusBadge } from "../components/StatusBadge";
 import { ProgressBar } from "../components/ProgressBar";
-import { BRL } from "@/lib/format";
+import { fmtCobranca, progressoDoProjeto } from "@/lib/store/relations";
 import { useModal } from "../modals/ModalProvider";
+import { useConfirm } from "../components/ConfirmProvider";
 import { ProjetoModal } from "../modals/ProjetoModal";
+import { dmgToast } from "@/lib/toast";
 import { Pencil, Trash2, Plus } from "lucide-react";
 
 export function ProjetosView() {
   const { projetos, remove, log } = useStore();
   const { open } = useModal();
+  const confirm = useConfirm();
 
   return (
     <Panel>
@@ -19,9 +22,7 @@ export function ProjetosView() {
         sub="clique num projeto para abrir os detalhes"
         action={
           <button
-            onClick={() =>
-              open("Novo projeto", (close) => <ProjetoModal onClose={close} />)
-            }
+            onClick={() => open("Novo projeto", (close) => <ProjetoModal onClose={close} />)}
             className="inline-flex items-center gap-1.5 rounded border border-dmg-border-strong bg-dmg-surface-2 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-dmg-text-2 hover:border-dmg-red-dark hover:text-dmg-text"
           >
             <Plus className="h-3.5 w-3.5" /> novo projeto
@@ -42,7 +43,7 @@ export function ProjetosView() {
                 <th className="pb-3 pr-4">Responsável</th>
                 <th className="pb-3 pr-4">Status</th>
                 <th className="pb-3 pr-4">Progresso</th>
-                <th className="pb-3 pr-4">Valor</th>
+                <th className="pb-3 pr-4">Cobrança</th>
                 <th className="pb-3" />
               </tr>
             </thead>
@@ -73,11 +74,9 @@ export function ProjetosView() {
                     <StatusBadge status={p.status} />
                   </td>
                   <td className="py-3 pr-4 min-w-[160px]">
-                    <ProgressBar value={p.progresso} />
+                    <ProgressBar value={progressoDoProjeto(p)} />
                   </td>
-                  <td className="py-3 pr-4 tabular-nums text-dmg-text-2">
-                    {p.valor ? BRL(Number(p.valor)) : "—"}
-                  </td>
+                  <td className="py-3 pr-4 tabular-nums text-dmg-text-2">{fmtCobranca(p)}</td>
                   <td className="py-3 text-right">
                     <div className="inline-flex gap-1">
                       <button
@@ -92,9 +91,12 @@ export function ProjetosView() {
                       </button>
                       <button
                         onClick={async () => {
-                          if (confirm(`Excluir o projeto "${p.nome}"?`)) {
+                          if (
+                            await confirm({ title: `Excluir o projeto "${p.nome}"?`, danger: true })
+                          ) {
                             await remove("projetos", p.id);
                             await log(`<b>Projeto</b> — ${p.nome} excluído`, "projeto");
+                            dmgToast.success("Projeto excluído");
                           }
                         }}
                         className="rounded p-1.5 text-dmg-text-3 hover:bg-dmg-red/10 hover:text-dmg-red"

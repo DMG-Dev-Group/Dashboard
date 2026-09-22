@@ -19,6 +19,11 @@ dist-ssr
 .env.*
 !.env.example
 
+# Environment variables (local only, never commit)
+.env
+.env.local
+.env.*.local
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

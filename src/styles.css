@@ -212,6 +212,21 @@
   }
 }
 
+@keyframes dmg-scan {
+  0%,
+  100% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  45%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
 .dmg-marquee-track {
   animation: dmg-marquee 40s linear infinite;
 }

@@ -5,6 +5,7 @@ import { StoreProvider } from "@/lib/store/StoreProvider";
 import { ModernLayout } from "@/features/dashboard/layouts/ModernLayout";
 import { ClassicLayout } from "@/features/dashboard/layouts/ClassicLayout";
 import { ModalProvider } from "@/features/dashboard/modals/ModalProvider";
+import { ConfirmProvider } from "@/features/dashboard/components/ConfirmProvider";
 import { layoutParaUser } from "@/lib/userProfile";
 
 /**
@@ -42,11 +43,13 @@ function AuthedContent() {
 
   return (
     <StoreProvider>
-      <ModalProvider>
-        <Layout>
-          <Outlet />
-        </Layout>
-      </ModalProvider>
+      <ConfirmProvider>
+        <ModalProvider>
+          <Layout>
+            <Outlet />
+          </Layout>
+        </ModalProvider>
+      </ConfirmProvider>
     </StoreProvider>
   );
 }

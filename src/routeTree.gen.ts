@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSegurancaRouteImport } from './routes/_auth.seguranca'
-import { Route as AuthProjetosRouteImport } from './routes/_auth.projetos'
+import { Route as AuthProjetosPessoaisRouteImport } from './routes/_auth.projetos-pessoais'
+import { Route as AuthNotasRouteImport } from './routes/_auth.notas'
+import { Route as AuthLeadsRouteImport } from './routes/_auth.leads'
 import { Route as AuthInfraestruturaRouteImport } from './routes/_auth.infraestrutura'
 import { Route as AuthFinanceiroRouteImport } from './routes/_auth.financeiro'
 import { Route as AuthEquipeRouteImport } from './routes/_auth.equipe'
@@ -22,6 +24,7 @@ import { Route as AuthClientesRouteImport } from './routes/_auth.clientes'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
 import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
+import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
 import { Route as ApiV1ProjectsRouteImport } from './routes/api.v1.projects'
 import { Route as ApiV1HealthRouteImport } from './routes/api.v1.health'
 import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
@@ -44,9 +47,19 @@ const AuthSegurancaRoute = AuthSegurancaRouteImport.update({
   path: '/seguranca',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthProjetosRoute = AuthProjetosRouteImport.update({
-  id: '/projetos',
-  path: '/projetos',
+const AuthProjetosPessoaisRoute = AuthProjetosPessoaisRouteImport.update({
+  id: '/projetos-pessoais',
+  path: '/projetos-pessoais',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthNotasRoute = AuthNotasRouteImport.update({
+  id: '/notas',
+  path: '/notas',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthLeadsRoute = AuthLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthInfraestruturaRoute = AuthInfraestruturaRouteImport.update({
@@ -94,6 +107,11 @@ const AuthAnalyticsRoute = AuthAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
+  id: '/projetos/',
+  path: '/projetos/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const ApiV1ProjectsRoute = ApiV1ProjectsRouteImport.update({
   id: '/api/v1/projects',
   path: '/api/v1/projects',
@@ -105,9 +123,9 @@ const ApiV1HealthRoute = ApiV1HealthRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthProjetosIdRoute = AuthProjetosIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthProjetosRoute,
+  id: '/projetos/$id',
+  path: '/projetos/$id',
+  getParentRoute: () => AuthRoute,
 } as any)
 const ApiV1ProjectsResolveRoute = ApiV1ProjectsResolveRouteImport.update({
   id: '/resolve',
@@ -141,11 +159,14 @@ export interface FileRoutesByFullPath {
   '/equipe': typeof AuthEquipeRoute
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
-  '/projetos': typeof AuthProjetosRouteWithChildren
+  '/leads': typeof AuthLeadsRoute
+  '/notas': typeof AuthNotasRoute
+  '/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
   '/api/v1/health': typeof ApiV1HealthRoute
   '/api/v1/projects': typeof ApiV1ProjectsRouteWithChildren
+  '/projetos/': typeof AuthProjetosIndexRoute
   '/api/v1/calendar/today': typeof ApiV1CalendarTodayRoute
   '/api/v1/projects/$id': typeof ApiV1ProjectsIdRouteWithChildren
   '/api/v1/projects/resolve': typeof ApiV1ProjectsResolveRoute
@@ -162,11 +183,14 @@ export interface FileRoutesByTo {
   '/equipe': typeof AuthEquipeRoute
   '/financeiro': typeof AuthFinanceiroRoute
   '/infraestrutura': typeof AuthInfraestruturaRoute
-  '/projetos': typeof AuthProjetosRouteWithChildren
+  '/leads': typeof AuthLeadsRoute
+  '/notas': typeof AuthNotasRoute
+  '/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
   '/api/v1/health': typeof ApiV1HealthRoute
   '/api/v1/projects': typeof ApiV1ProjectsRouteWithChildren
+  '/projetos': typeof AuthProjetosIndexRoute
   '/api/v1/calendar/today': typeof ApiV1CalendarTodayRoute
   '/api/v1/projects/$id': typeof ApiV1ProjectsIdRouteWithChildren
   '/api/v1/projects/resolve': typeof ApiV1ProjectsResolveRoute
@@ -185,11 +209,14 @@ export interface FileRoutesById {
   '/_auth/equipe': typeof AuthEquipeRoute
   '/_auth/financeiro': typeof AuthFinanceiroRoute
   '/_auth/infraestrutura': typeof AuthInfraestruturaRoute
-  '/_auth/projetos': typeof AuthProjetosRouteWithChildren
+  '/_auth/leads': typeof AuthLeadsRoute
+  '/_auth/notas': typeof AuthNotasRoute
+  '/_auth/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/_auth/seguranca': typeof AuthSegurancaRoute
   '/_auth/projetos/$id': typeof AuthProjetosIdRoute
   '/api/v1/health': typeof ApiV1HealthRoute
   '/api/v1/projects': typeof ApiV1ProjectsRouteWithChildren
+  '/_auth/projetos/': typeof AuthProjetosIndexRoute
   '/api/v1/calendar/today': typeof ApiV1CalendarTodayRoute
   '/api/v1/projects/$id': typeof ApiV1ProjectsIdRouteWithChildren
   '/api/v1/projects/resolve': typeof ApiV1ProjectsResolveRoute
@@ -208,11 +235,14 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/financeiro'
     | '/infraestrutura'
-    | '/projetos'
+    | '/leads'
+    | '/notas'
+    | '/projetos-pessoais'
     | '/seguranca'
     | '/projetos/$id'
     | '/api/v1/health'
     | '/api/v1/projects'
+    | '/projetos/'
     | '/api/v1/calendar/today'
     | '/api/v1/projects/$id'
     | '/api/v1/projects/resolve'
@@ -229,11 +259,14 @@ export interface FileRouteTypes {
     | '/equipe'
     | '/financeiro'
     | '/infraestrutura'
-    | '/projetos'
+    | '/leads'
+    | '/notas'
+    | '/projetos-pessoais'
     | '/seguranca'
     | '/projetos/$id'
     | '/api/v1/health'
     | '/api/v1/projects'
+    | '/projetos'
     | '/api/v1/calendar/today'
     | '/api/v1/projects/$id'
     | '/api/v1/projects/resolve'
@@ -251,11 +284,14 @@ export interface FileRouteTypes {
     | '/_auth/equipe'
     | '/_auth/financeiro'
     | '/_auth/infraestrutura'
-    | '/_auth/projetos'
+    | '/_auth/leads'
+    | '/_auth/notas'
+    | '/_auth/projetos-pessoais'
     | '/_auth/seguranca'
     | '/_auth/projetos/$id'
     | '/api/v1/health'
     | '/api/v1/projects'
+    | '/_auth/projetos/'
     | '/api/v1/calendar/today'
     | '/api/v1/projects/$id'
     | '/api/v1/projects/resolve'
@@ -293,11 +329,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSegurancaRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/projetos': {
-      id: '/_auth/projetos'
-      path: '/projetos'
-      fullPath: '/projetos'
-      preLoaderRoute: typeof AuthProjetosRouteImport
+    '/_auth/projetos-pessoais': {
+      id: '/_auth/projetos-pessoais'
+      path: '/projetos-pessoais'
+      fullPath: '/projetos-pessoais'
+      preLoaderRoute: typeof AuthProjetosPessoaisRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/notas': {
+      id: '/_auth/notas'
+      path: '/notas'
+      fullPath: '/notas'
+      preLoaderRoute: typeof AuthNotasRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/leads': {
+      id: '/_auth/leads'
+      path: '/leads'
+      fullPath: '/leads'
+      preLoaderRoute: typeof AuthLeadsRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/infraestrutura': {
@@ -363,6 +413,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAnalyticsRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/projetos/': {
+      id: '/_auth/projetos/'
+      path: '/projetos'
+      fullPath: '/projetos/'
+      preLoaderRoute: typeof AuthProjetosIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/api/v1/projects': {
       id: '/api/v1/projects'
       path: '/api/v1/projects'
@@ -379,10 +436,10 @@ declare module '@tanstack/react-router' {
     }
     '/_auth/projetos/$id': {
       id: '/_auth/projetos/$id'
-      path: '/$id'
+      path: '/projetos/$id'
       fullPath: '/projetos/$id'
       preLoaderRoute: typeof AuthProjetosIdRouteImport
-      parentRoute: typeof AuthProjetosRoute
+      parentRoute: typeof AuthRoute
     }
     '/api/v1/projects/resolve': {
       id: '/api/v1/projects/resolve'
@@ -415,18 +472,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthProjetosRouteChildren {
-  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
-}
-
-const AuthProjetosRouteChildren: AuthProjetosRouteChildren = {
-  AuthProjetosIdRoute: AuthProjetosIdRoute,
-}
-
-const AuthProjetosRouteWithChildren = AuthProjetosRoute._addFileChildren(
-  AuthProjetosRouteChildren,
-)
-
 interface AuthRouteChildren {
   AuthAnalyticsRoute: typeof AuthAnalyticsRoute
   AuthAtividadesRoute: typeof AuthAtividadesRoute
@@ -437,8 +482,12 @@ interface AuthRouteChildren {
   AuthEquipeRoute: typeof AuthEquipeRoute
   AuthFinanceiroRoute: typeof AuthFinanceiroRoute
   AuthInfraestruturaRoute: typeof AuthInfraestruturaRoute
-  AuthProjetosRoute: typeof AuthProjetosRouteWithChildren
+  AuthLeadsRoute: typeof AuthLeadsRoute
+  AuthNotasRoute: typeof AuthNotasRoute
+  AuthProjetosPessoaisRoute: typeof AuthProjetosPessoaisRoute
   AuthSegurancaRoute: typeof AuthSegurancaRoute
+  AuthProjetosIdRoute: typeof AuthProjetosIdRoute
+  AuthProjetosIndexRoute: typeof AuthProjetosIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
@@ -451,8 +500,12 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthEquipeRoute: AuthEquipeRoute,
   AuthFinanceiroRoute: AuthFinanceiroRoute,
   AuthInfraestruturaRoute: AuthInfraestruturaRoute,
-  AuthProjetosRoute: AuthProjetosRouteWithChildren,
+  AuthLeadsRoute: AuthLeadsRoute,
+  AuthNotasRoute: AuthNotasRoute,
+  AuthProjetosPessoaisRoute: AuthProjetosPessoaisRoute,
   AuthSegurancaRoute: AuthSegurancaRoute,
+  AuthProjetosIdRoute: AuthProjetosIdRoute,
+  AuthProjetosIndexRoute: AuthProjetosIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)

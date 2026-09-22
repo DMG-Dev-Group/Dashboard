@@ -2,26 +2,37 @@ import { useState } from "react";
 import { useStore } from "@/lib/store/StoreProvider";
 import { Actions, Field, Input, Select } from "./ProjetoModal";
 import { isoDay } from "@/lib/format";
+import { dmgToast } from "@/lib/toast";
+import type { Evento } from "@/lib/store/types";
 
 export function EventoModal({
+  evento,
   dataInicial,
   onClose,
 }: {
+  evento?: Evento;
   dataInicial?: string;
   onClose: () => void;
 }) {
-  const { add, log } = useStore();
+  const { add, update, log } = useStore();
   const [f, setF] = useState({
-    titulo: "",
-    data: dataInicial ?? isoDay(new Date()),
-    hora: "",
-    tipo: "reuniao" as "reuniao" | "entrega" | "deadline" | "outro",
+    titulo: evento?.titulo ?? "",
+    data: evento?.data ?? dataInicial ?? isoDay(new Date()),
+    hora: evento?.hora ?? "",
+    tipo: (evento?.tipo ?? "reuniao") as "reuniao" | "entrega" | "deadline" | "outro",
   });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    await add("eventos", f);
-    await log(`<b>Evento</b> — ${f.titulo} agendado`, "calendario");
+    if (evento) {
+      await update("eventos", evento.id, f);
+      await log(`<b>Evento</b> — ${f.titulo} atualizado`, "calendario");
+      dmgToast.success("Evento atualizado");
+    } else {
+      await add("eventos", f);
+      await log(`<b>Evento</b> — ${f.titulo} agendado`, "calendario");
+      dmgToast.success("Evento agendado");
+    }
     onClose();
   }
 
@@ -39,17 +50,14 @@ export function EventoModal({
         </Field>
       </div>
       <Field label="Tipo">
-        <Select
-          value={f.tipo}
-          onChange={(v) => setF({ ...f, tipo: v as typeof f.tipo })}
-        >
+        <Select value={f.tipo} onChange={(v) => setF({ ...f, tipo: v as typeof f.tipo })}>
           <option value="reuniao">Reunião</option>
           <option value="entrega">Entrega</option>
           <option value="deadline">Deadline</option>
           <option value="outro">Outro</option>
         </Select>
       </Field>
-      <Actions onClose={onClose} />
+      <Actions onClose={onClose} submitLabel={evento ? "salvar alterações" : "salvar"} />
     </form>
   );
 }

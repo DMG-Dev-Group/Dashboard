@@ -1,16 +1,11 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  signOut,
-  type User,
-} from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut, type User } from "firebase/auth";
 import { getFirebase } from "@/lib/firebase";
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, senha: string) => Promise<void>;
+  signIn: (email: string, senha: string) => Promise<User>;
   signOut: () => Promise<void>;
 }
 
@@ -33,7 +28,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     async signIn(email, senha) {
       const { auth } = getFirebase();
-      await signInWithEmailAndPassword(auth, email, senha);
+      const cred = await signInWithEmailAndPassword(auth, email, senha);
+      return cred.user;
     },
     async signOut() {
       const { auth } = getFirebase();

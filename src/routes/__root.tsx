@@ -10,6 +10,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -75,7 +76,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "DMG — Damage Group" },
       {
         name: "description",
-        content: "Damage Group — força, inovação e liderança tecnológica. Desenvolvimento web, mobile e cloud sob medida.",
+        content:
+          "Damage Group — força, inovação e liderança tecnológica. Desenvolvimento web, mobile e cloud sob medida.",
       },
       { property: "og:title", content: "DMG — Damage Group" },
       {
@@ -87,7 +89,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+      { rel: "alternate icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" as any },
       {
@@ -121,6 +124,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }
