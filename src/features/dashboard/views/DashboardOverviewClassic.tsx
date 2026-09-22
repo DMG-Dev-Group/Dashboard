@@ -462,4 +462,3 @@ function formatDelta(delta: number) {
   if (!Number.isFinite(delta) || delta === 0) return "0%";
   return `${delta > 0 ? "+" : ""}${delta.toFixed(0)}%`;
 }
-

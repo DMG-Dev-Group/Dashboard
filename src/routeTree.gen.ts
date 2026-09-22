@@ -25,7 +25,13 @@ import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthAtividadesRouteImport } from './routes/_auth.atividades'
 import { Route as AuthAnalyticsRouteImport } from './routes/_auth.analytics'
 import { Route as AuthProjetosIndexRouteImport } from './routes/_auth.projetos.index'
+import { Route as ApiV1ProjectsRouteImport } from './routes/api.v1.projects'
+import { Route as ApiV1HealthRouteImport } from './routes/api.v1.health'
 import { Route as AuthProjetosIdRouteImport } from './routes/_auth.projetos.$id'
+import { Route as ApiV1ProjectsResolveRouteImport } from './routes/api.v1.projects.resolve'
+import { Route as ApiV1ProjectsIdRouteImport } from './routes/api.v1.projects.$id'
+import { Route as ApiV1CalendarTodayRouteImport } from './routes/api.v1.calendar.today'
+import { Route as ApiV1ProjectsIdRecordsRouteImport } from './routes/api.v1.projects.$id.records'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -106,10 +112,40 @@ const AuthProjetosIndexRoute = AuthProjetosIndexRouteImport.update({
   path: '/projetos/',
   getParentRoute: () => AuthRoute,
 } as any)
+const ApiV1ProjectsRoute = ApiV1ProjectsRouteImport.update({
+  id: '/api/v1/projects',
+  path: '/api/v1/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1HealthRoute = ApiV1HealthRouteImport.update({
+  id: '/api/v1/health',
+  path: '/api/v1/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthProjetosIdRoute = AuthProjetosIdRouteImport.update({
   id: '/projetos/$id',
   path: '/projetos/$id',
   getParentRoute: () => AuthRoute,
+} as any)
+const ApiV1ProjectsResolveRoute = ApiV1ProjectsResolveRouteImport.update({
+  id: '/resolve',
+  path: '/resolve',
+  getParentRoute: () => ApiV1ProjectsRoute,
+} as any)
+const ApiV1ProjectsIdRoute = ApiV1ProjectsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiV1ProjectsRoute,
+} as any)
+const ApiV1CalendarTodayRoute = ApiV1CalendarTodayRouteImport.update({
+  id: '/api/v1/calendar/today',
+  path: '/api/v1/calendar/today',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ProjectsIdRecordsRoute = ApiV1ProjectsIdRecordsRouteImport.update({
+  id: '/records',
+  path: '/records',
+  getParentRoute: () => ApiV1ProjectsIdRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -128,7 +164,13 @@ export interface FileRoutesByFullPath {
   '/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
+  '/api/v1/health': typeof ApiV1HealthRoute
+  '/api/v1/projects': typeof ApiV1ProjectsRouteWithChildren
   '/projetos/': typeof AuthProjetosIndexRoute
+  '/api/v1/calendar/today': typeof ApiV1CalendarTodayRoute
+  '/api/v1/projects/$id': typeof ApiV1ProjectsIdRouteWithChildren
+  '/api/v1/projects/resolve': typeof ApiV1ProjectsResolveRoute
+  '/api/v1/projects/$id/records': typeof ApiV1ProjectsIdRecordsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -146,7 +188,13 @@ export interface FileRoutesByTo {
   '/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/seguranca': typeof AuthSegurancaRoute
   '/projetos/$id': typeof AuthProjetosIdRoute
+  '/api/v1/health': typeof ApiV1HealthRoute
+  '/api/v1/projects': typeof ApiV1ProjectsRouteWithChildren
   '/projetos': typeof AuthProjetosIndexRoute
+  '/api/v1/calendar/today': typeof ApiV1CalendarTodayRoute
+  '/api/v1/projects/$id': typeof ApiV1ProjectsIdRouteWithChildren
+  '/api/v1/projects/resolve': typeof ApiV1ProjectsResolveRoute
+  '/api/v1/projects/$id/records': typeof ApiV1ProjectsIdRecordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -166,7 +214,13 @@ export interface FileRoutesById {
   '/_auth/projetos-pessoais': typeof AuthProjetosPessoaisRoute
   '/_auth/seguranca': typeof AuthSegurancaRoute
   '/_auth/projetos/$id': typeof AuthProjetosIdRoute
+  '/api/v1/health': typeof ApiV1HealthRoute
+  '/api/v1/projects': typeof ApiV1ProjectsRouteWithChildren
   '/_auth/projetos/': typeof AuthProjetosIndexRoute
+  '/api/v1/calendar/today': typeof ApiV1CalendarTodayRoute
+  '/api/v1/projects/$id': typeof ApiV1ProjectsIdRouteWithChildren
+  '/api/v1/projects/resolve': typeof ApiV1ProjectsResolveRoute
+  '/api/v1/projects/$id/records': typeof ApiV1ProjectsIdRecordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -186,7 +240,13 @@ export interface FileRouteTypes {
     | '/projetos-pessoais'
     | '/seguranca'
     | '/projetos/$id'
+    | '/api/v1/health'
+    | '/api/v1/projects'
     | '/projetos/'
+    | '/api/v1/calendar/today'
+    | '/api/v1/projects/$id'
+    | '/api/v1/projects/resolve'
+    | '/api/v1/projects/$id/records'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -204,7 +264,13 @@ export interface FileRouteTypes {
     | '/projetos-pessoais'
     | '/seguranca'
     | '/projetos/$id'
+    | '/api/v1/health'
+    | '/api/v1/projects'
     | '/projetos'
+    | '/api/v1/calendar/today'
+    | '/api/v1/projects/$id'
+    | '/api/v1/projects/resolve'
+    | '/api/v1/projects/$id/records'
   id:
     | '__root__'
     | '/'
@@ -223,12 +289,21 @@ export interface FileRouteTypes {
     | '/_auth/projetos-pessoais'
     | '/_auth/seguranca'
     | '/_auth/projetos/$id'
+    | '/api/v1/health'
+    | '/api/v1/projects'
     | '/_auth/projetos/'
+    | '/api/v1/calendar/today'
+    | '/api/v1/projects/$id'
+    | '/api/v1/projects/resolve'
+    | '/api/v1/projects/$id/records'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
+  ApiV1HealthRoute: typeof ApiV1HealthRoute
+  ApiV1ProjectsRoute: typeof ApiV1ProjectsRouteWithChildren
+  ApiV1CalendarTodayRoute: typeof ApiV1CalendarTodayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -345,12 +420,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthProjetosIndexRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/api/v1/projects': {
+      id: '/api/v1/projects'
+      path: '/api/v1/projects'
+      fullPath: '/api/v1/projects'
+      preLoaderRoute: typeof ApiV1ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/health': {
+      id: '/api/v1/health'
+      path: '/api/v1/health'
+      fullPath: '/api/v1/health'
+      preLoaderRoute: typeof ApiV1HealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth/projetos/$id': {
       id: '/_auth/projetos/$id'
       path: '/projetos/$id'
       fullPath: '/projetos/$id'
       preLoaderRoute: typeof AuthProjetosIdRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/api/v1/projects/resolve': {
+      id: '/api/v1/projects/resolve'
+      path: '/resolve'
+      fullPath: '/api/v1/projects/resolve'
+      preLoaderRoute: typeof ApiV1ProjectsResolveRouteImport
+      parentRoute: typeof ApiV1ProjectsRoute
+    }
+    '/api/v1/projects/$id': {
+      id: '/api/v1/projects/$id'
+      path: '/$id'
+      fullPath: '/api/v1/projects/$id'
+      preLoaderRoute: typeof ApiV1ProjectsIdRouteImport
+      parentRoute: typeof ApiV1ProjectsRoute
+    }
+    '/api/v1/calendar/today': {
+      id: '/api/v1/calendar/today'
+      path: '/api/v1/calendar/today'
+      fullPath: '/api/v1/calendar/today'
+      preLoaderRoute: typeof ApiV1CalendarTodayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/projects/$id/records': {
+      id: '/api/v1/projects/$id/records'
+      path: '/records'
+      fullPath: '/api/v1/projects/$id/records'
+      preLoaderRoute: typeof ApiV1ProjectsIdRecordsRouteImport
+      parentRoute: typeof ApiV1ProjectsIdRoute
     }
   }
 }
@@ -393,9 +510,38 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface ApiV1ProjectsIdRouteChildren {
+  ApiV1ProjectsIdRecordsRoute: typeof ApiV1ProjectsIdRecordsRoute
+}
+
+const ApiV1ProjectsIdRouteChildren: ApiV1ProjectsIdRouteChildren = {
+  ApiV1ProjectsIdRecordsRoute: ApiV1ProjectsIdRecordsRoute,
+}
+
+const ApiV1ProjectsIdRouteWithChildren = ApiV1ProjectsIdRoute._addFileChildren(
+  ApiV1ProjectsIdRouteChildren,
+)
+
+interface ApiV1ProjectsRouteChildren {
+  ApiV1ProjectsIdRoute: typeof ApiV1ProjectsIdRouteWithChildren
+  ApiV1ProjectsResolveRoute: typeof ApiV1ProjectsResolveRoute
+}
+
+const ApiV1ProjectsRouteChildren: ApiV1ProjectsRouteChildren = {
+  ApiV1ProjectsIdRoute: ApiV1ProjectsIdRouteWithChildren,
+  ApiV1ProjectsResolveRoute: ApiV1ProjectsResolveRoute,
+}
+
+const ApiV1ProjectsRouteWithChildren = ApiV1ProjectsRoute._addFileChildren(
+  ApiV1ProjectsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
+  ApiV1HealthRoute: ApiV1HealthRoute,
+  ApiV1ProjectsRoute: ApiV1ProjectsRouteWithChildren,
+  ApiV1CalendarTodayRoute: ApiV1CalendarTodayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
